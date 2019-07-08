@@ -1,0 +1,71 @@
+﻿<link rel="import" href="/sys/polymer/polymer.html">
+<link href="/Constructor/assets/css/style.css" rel="stylesheet" />
+
+<template>
+    <dom-bind>
+        <template is="dom-bind">
+            <section class="page">
+                <h2>Starcounter Product Constructor Demo</h2>
+                <div class="item-container">
+                    <template is="dom-repeat" items="[[model.Products]]">
+                        <template is="dom-if" if="[[!item.DeleteTrigger$]]">
+                            <div>
+                                <a href="/constructor/product/[[item.ObjectNoStr]]">
+                                    <div class="item">
+                                        <div class="item-image">
+                                            <template is="dom-if" if="[[item.ImageUrl]]">
+                                                <img src$="[[item.ImageUrl]]" alt="[[item.Name]]" />
+                                            </template>
+                                        </div>
+                                        <div class="item-title">[[item.Name]]</div>
+                                        <div class="item-info">
+                                            <ul class="label">
+                                                <li>[[item.Repository.BranchCountStr]]</li>
+                                                <li>[[item.Repository.CommitCountStr]]</li>
+                                                <li>
+                                                    <input type="image" src="/Constructor/assets/icons/icon-trashcan.svg" disabled="[[item.DeleteTrigger$]]" value="{{item.DeleteTrigger$::click}}" onmouseup="++this.value;" onclick="event.preventDefault(); event.stopPropagation(); return false;" class="item__button-image" />
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+                <div class="ui-controls__main">
+                    <button class="btn btn__primary" type="button" value="{{model.NewProduct.VisibleTrigger$::click}}" onmouseup="this.value = true;">New Product</button>
+                    <button class="btn btn__secondary btn__secondary--flat" type="button" value="{{model.CreateDefaultBicycleProductTrigger$::click}}" onmouseup="++this.value;">Create Bicycle</button>
+                    <button class="btn btn__secondary btn__secondary--flat" type="button" value="{{model.CreateDefaultComputerProductTrigger$::click}}" onmouseup="++this.value;">Create Computer</button>
+                </div>
+
+                <template is="dom-if" if="[[model.NewProduct.VisibleTrigger$]]" restamp>
+                    <div class="overlay">
+                        <div class="card">
+                            <div class="card__title">
+                                <h2>Create new product.</h2>
+                            </div>
+                            <div class="card__info">
+                                <div class="input">
+                                    <input type="text" maxlength="250" value="{{model.NewProduct.Name$::change}}" placeholder="Name" />
+                                    <script>
+                                        {
+                                            const script = document.currentScript;
+                                            const input = script.previousElementSibling;
+                                            input.focus();
+                                        }
+                                    </script>
+                                    <p class="label">Product Name</p>
+                                </div>
+                            </div>
+                            <div class="card__ui">
+                                <button class="btn btn__primary" type="button" disabled="[[model.NewProduct.SubmitTrigger$]]" value="{{model.NewProduct.SubmitTrigger$::click}}" onmouseup="++this.value">Submit</button>
+                                <button class="btn btn__secondary btn__secondary--flat" type="button" disabled="[[model.NewProduct.CancelTrigger$]]" value="{{model.NewProduct.CancelTrigger$::click}}" onmouseup="++this.value;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </section>
+        </template>
+    </dom-bind>
+</template>

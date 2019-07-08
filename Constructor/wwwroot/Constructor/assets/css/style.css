@@ -1,0 +1,42 @@
+@import url('normalize.css');
+@import url('inter.css');
+@import url('_elements.css');
+
+starcounter-include {
+    min-height: 100%;
+}
+
+html, body {
+    font-family: 'Inter';
+}
+
+body {
+    height: 100vh;
+    padding: 30px;
+    background: #fafafa;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
+
+section.page {
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    max-width: 1680px;
+}
+
+.ui-controls {
+   // margin-top: auto;
+}
+
+button[current] {
+    font-weight: bold;
+}
+
+input[type=number] {
+    text-align: right;
+}

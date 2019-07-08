@@ -1,0 +1,326 @@
+<!-- palindrom-polymer-client version: 7.3.0 | MIT License -->
+
+<!--
+`palindrom-client` element binds [Palindrom](https://github.com/Palindrom/Palindrom) with [Polymer's template binding](https://www.polymer-project.org/2.0/docs/devguide/templates.html).
+That keeps your Polymer app, or just `dom-bind` template in sync with any server-side
+data-model using Palindrom & [JSON Patch](https://tools.ietf.org/html/rfc6902) flow.
+You get three-way data binding server - JS - HTML, kept in flawless sync.
+    <palindrom-client
+        obj="{{model}}"></palindrom-client>
+It establishes the Palindrom connection when attached. All the changes made
+in browser are sent to the server via WebSocket or HTTP, as
+[JSON Patch](https://tools.ietf.org/html/rfc6902)es.
+All the changes from server are also received and propagated to your HTML.
+-->
+<script src="../Palindrom/dist/palindrom-dom.min.js"></script>
+
+<script>
+    (function () {
+        const defaultProps = {
+            "useWebSocket": true,
+            "debug": false,
+            "localVersionPath": '/_ver#c$',
+            "remoteVersionPath": '/_ver#s',
+            "ot": true,
+            "purity": false,
+            "pingIntervalS": 60,
+            "path": '/',
+            "devToolsOpen": false,
+            "fatalErrorReloadAfterS": 5
+        }
+        const defaultAttribs = ['remote-url', 'use-web-socket', 'debug', 'local-version-path', 'remote-version-path', 'ot', 'purity', 'listen-to', 'ping-interval-s', 'purity', 'fatal-error-reload-after-s', 'path'];
+        class PalindromClient extends HTMLElement {
+            constructor() {
+                super();
+                // assign default properties
+                Object.assign(this, defaultProps);
+            }
+            static get observedAttributes() {
+                return ['merged-notifications-threshold'];
+            }
+            reconnectNow() {
+                this.palindrom.reconnectNow();
+            }
+            reload() {
+                window.location.reload();
+            }
+            cancelReloading() {
+                clearInterval(this.reloadingInterval);
+                delete this.reloadingInterval;
+            }
+            /**
+             * assigns an instance of Palindrom according to given params, attaches it to .palindrom property
+             *
+             */
+            connectedCallback() {
+                // assign attributes to props
+                for (let i = 0; i < this.attributes.length; i++) {
+                    const attrib = this.attributes[i];
+                    if (defaultAttribs.includes(attrib.name)) {
+                        const prop = kebebCaseToCamelCase(attrib.name);
+                        this[prop] = attrib.value;
+                    }
+                }
+                const whereToBind = this.getAttribute("ref");
+                let listenTo = this.listenTo;
+                const pingIntervalS = this.pingIntervalS / 1;
+                if (listenTo) {
+                    listenTo = typeof listenTo == "string" ? document.getElementById(listenTo) : listenTo;
+                }
+                let palindrom = PalindromDOM.instances && PalindromDOM.instances.get(this.remoteUrl);
+                if (!palindrom) {
+                    /**
+                     * To tell whether we connected to an existing instance,
+                     * or created our own. This is useful for detachement, we don't want
+                     * to destroy Palindrom instances that we don't own
+                     * */
+                    this.isUsingOwnInstanceOfPalindrom = true;
+                    this.palindrom = palindrom = new PalindromDOM({
+                        remoteUrl: this.remoteUrl,
+                        pingIntervalS,
+                        useWebSocket: this.useWebSocket,
+                        debug: this.debug,
+                        ot: this.ot,
+                        purity: this.purity,
+                        localVersionPath: this.localVersionPath,
+                        remoteVersionPath: this.remoteVersionPath,
+                        listenTo,
+                        onLocalChange: this.onLocalChange.bind(this),
+                        onRemoteChange: this.onPatchApplied.bind(this),
+                        onPatchReceived: this.onPatchReceived.bind(this),
+                        onIncomingPatchValidationError: this.onGenericError.bind(this),
+                        onOutgoingPatchValidationError: this.onGenericError.bind(this),
+                        onError: this.onGenericError.bind(this),
+                        onPatchSent: this.onPatchSent.bind(this),
+                        onSocketStateChanged: this.onSocketStateChanged.bind(this),
+                        onConnectionError: this.onConnectionError.bind(this),
+                        onReconnectionCountdown: this.onReconnectionCountdown.bind(this),
+                        onReconnectionEnd: this.onReconnectionEnd.bind(this),
+                        onStateReset: obj => {
+                            this.obj = obj;
+                            if (whereToBind) {
+                                this.bindTo(whereToBind);
+                            }
+                            this.onPatchApplied([{ op: 'replace', path: '', value: obj }], [{ removed: this.obj }])
+                        }
+                    });
+                    if (!PalindromDOM.instances) {
+                        PalindromDOM.instances = new Map();
+                    }
+                    PalindromDOM.instances.set(this.remoteUrl, palindrom);
+                } else {
+                    this.isUsingOwnInstanceOfPalindrom = false;
+                    // with already established connection we cannot change listenTo parameter
+                    this.palindrom = palindrom;
+                    palindrom.onLocalChange = this.onLocalChange.bind(this);
+                    palindrom.onRemoteChange = this.onPatchApplied.bind(this);
+                    palindrom.onPatchReceived = this.onPatchReceived.bind(this);
+                    palindrom.onIncomingPatchValidationError = this.onGenericError.bind(this);
+                    palindrom.onOutgoingPatchValidationError = this.onGenericError.bind(this);
+                    palindrom.onError = this.onGenericError.bind(this);
+                    palindrom.onPatchSent = this.onPatchSent.bind(this);
+                    palindrom.onSocketStateChanged = this.onSocketStateChanged.bind(this);
+                    palindrom.onConnectionError = this.onConnectionError.bind(this);
+                    palindrom.onReconnectionCountdown = this.onReconnectionCountdown.bind(this);
+                    palindrom.onReconnectionEnd = this.onReconnectionEnd.bind(this);
+                    palindrom.onStateReset = obj => {
+                        this.obj = obj;
+                        if (whereToBind) {
+                            this.bindTo(whereToBind);
+                        }
+                        this.onPatchApplied([{ op: 'replace', path: '', value: obj }], [{ removed: this.obj }])
+                    }
+                    // if already established (re-)set state
+                    if (palindrom.obj) {
+                        palindrom.onStateReset(palindrom.obj);
+                    }
+                }
+                this.network = palindrom.network;
+                this.morphUrl = palindrom.morphUrl.bind(palindrom)
+            }
+            disconnectedCallback() {
+                if (this.isUsingOwnInstanceOfPalindrom) {
+                    this.palindrom.unlisten();
+                    // hacky way to stop Palindrom connection
+                    this.palindrom.useWebSocket = false;
+                    PalindromDOM.instances.delete(this.remoteUrl);
+                }
+            }
+            bindTo(element) {
+                // use node id or node itself;
+                element = typeof element == "string" ? document.getElementById(element) : element;
+                element.model = this.obj;
+                this.bound = element;
+            }
+            propagateDomBind(sequence) {
+                if (this.bound) {
+                    this.notifyTemplateDomBind(this.bound.model, sequence, this.bound, "model");
+                }
+                else {
+                    this.notifyTemplateDomBind(this.obj, sequence, this, "obj");
+                }
+            }
+            onLocalChange(patches) {
+                // todo #26
+                this.propagateDomBind({ patches, results: patches.map(() => { }) });
+            }
+            fire(name, detail) {
+                this.dispatchEvent(new CustomEvent(name, { detail }));
+            }
+            onPatchReceived(data, url, method) {
+                this.fire("patchreceived", {
+                    data,
+                    url,
+                    method
+                });
+            }
+            onPatchSent(data, url, method) {
+                this.fire("patchsent", {
+                    data,
+                    url,
+                    method
+                });
+            }
+            onSocketStateChanged(state, url, data, statusCode, reason) {
+                this.fire("socketstatechanged", {
+                    state,
+                    url,
+                    data,
+                    statusCode,
+                    reason
+                });
+            }
+            onConnectionError(palindromConnectionError) {
+                const eventDetail = {
+                    error: palindromConnectionError,
+                    handled: false
+                };
+                this.fire("connection-error", eventDetail);
+            }
+            onGenericError(error) {
+                const eventDetail = {
+                    error
+                };
+                this.fire("generic-error", eventDetail);
+            }
+            onReconnectionCountdown(milliseconds) {
+                const eventDetail = {
+                    milliseconds,
+                    handled: false
+                };
+                this.fire("reconnection-countdown", eventDetail);
+            }
+            onReconnectionEnd() {
+                const eventDetail = {
+                    handled: false
+                };
+                this.fire("reconnection-end", eventDetail);
+            }
+            onPatchApplied(patches, results) {
+                this.propagateDomBind({ patches, results });
+                this.fire("patch-applied", {
+                    patches
+                });
+            }
+            notifyTemplateDomBind(tree, patchesAndResults, templateDomBind, polymerPathPrefix) {
+                let operation;
+                let polymerPath;
+                for (let operationNo = 0, len = patchesAndResults.patches.length; operationNo < len; operationNo++) {
+                    operation = patchesAndResults.patches[operationNo];
+                    const result = patchesAndResults.results[operationNo];
+                    if (operation.path == "") {
+                        // Replate the original object with the new one.
+                        templateDomBind.set('model', this.obj);
+                        // By the time we're here all the operations in the patch
+                        // are applied to the object by Palindrom.
+                        // As we notified the root about the entire object change,
+                        // there is no need to notify individual  properties.
+                        // https://github.com/Palindrom/Palindrom/blob/c38cf23/src/palindrom.js#L814-L843
+                        return;
+                    }
+                    polymerPath = polymerPathPrefix + translateJSONPointerToPolymerPath(operation.path);
+                    if (operation.op === 'test') {
+                        // we assume that jsonpatch covered it already
+                    } else if (operation.op === 'move' || operation.op === 'copy') {
+                        console.warn("move, and copy operations are not supported yet.")
+                    } else {
+                        // for add and remove we need to check whether it's an array or not
+                        const lastSeparator = operation.path.lastIndexOf('/');
+                        let name = operation.path.substr(lastSeparator + 1);
+                        const parentsPolymerPath = polymerPathPrefix + translateJSONPointerToPolymerPath(operation.path.substring(0, lastSeparator));
+                        const parent = templateDomBind.get(parentsPolymerPath);
+                        if (Array.isArray(parent) && (name === '-' || isNormalInteger(name))) {
+                            switch (operation.op) {
+                                case 'add':
+                                    // JSONPatch push
+                                    if (name === '-') {
+                                        name = result.index;
+                                    }
+                                    templateDomBind.notifySplices(parentsPolymerPath,
+                                        [{
+                                            index: parseInt(name, 10),
+                                            removed: [],
+                                            addedCount: 1,
+                                            object: parent,
+                                            type: 'splice'
+                                        }]
+                                    );
+                                    break;
+                                case 'replace':
+                                    templateDomBind.notifySplices(parentsPolymerPath,
+                                        [{
+                                            index: parseInt(name, 10),
+                                            removed: (result && [result.removed]) || [],
+                                            addedCount: 1,
+                                            object: parent,
+                                            type: 'splice'
+                                        }]
+                                    );
+                                    break;
+                                case 'remove':
+                                    templateDomBind.notifySplices(parentsPolymerPath,
+                                        [{
+                                            index: parseInt(name, 10),
+                                            removed: (result && [result.removed]) || [],
+                                            addedCount: 0,
+                                            object: parent,
+                                            type: 'splice'
+                                        }]
+                                    );
+                                    break;
+                            }
+                        } else {
+                            switch (operation.op) {
+                                case 'add':
+                                case 'replace':
+                                    if (typeof operation.value === 'object') {
+                                        templateDomBind.notifyPath(polymerPath);
+                                    } else {
+                                        templateDomBind.notifyPath(polymerPath, operation.value, false);
+                                    }
+                                    break;
+                                case 'remove':
+                                    //console.warn('Polymer does not support unsetting properties https://github.com/Polymer/polymer/issues/2565');
+                                    //console.warn('remove is translated to JSON incompatible set to `undefined`, as there is no remove method in Polymer.')
+                                    templateDomBind.notifyPath(polymerPath, null, false);
+                                    templateDomBind.notifyPath(polymerPath, undefined, false);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        customElements.define('palindrom-client', PalindromClient);
+        function translateJSONPointerToPolymerPath(pointer) {
+            return pointer.replace(/\//g, '.');
+        }
+        function isNormalInteger(str) {
+            const n = ~~Number(str);
+            return String(n) === str && n >= 0;
+        }
+        function kebebCaseToCamelCase(str) {
+            return str.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+        }
+    })();
+</script>

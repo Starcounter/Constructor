@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&lt;uni-date-picker&gt;</title>
+    <link rel="stylesheet" href="../../../underwear.css/underwear.css">
+
+    <!-- Imports polyfill -->
+    <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <!-- Imports custom element -->
+    <link rel="import" href="uni-date-picker.html">
+    <style>
+        html {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        body {
+            max-width: calc(100% - 1em);
+        }
+
+        /* Most large desktops and laptops according to MD & UXPin */
+        @media screen and (min-width: 1280px) {
+            body{
+                display: grid;
+                grid-column-gap: 1.5em;
+            }
+            body>* {
+                grid-column: 1 / span 2;
+            }
+            body>.uniform {
+                grid-column: 1;
+            }
+            body>.uniform-sd {
+                grid-column: 2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Uniform and Uniform in Shadow DOM examples</h2>
+
+    <h3>Plain date picker</h3>
+    <template id="for-dom-bind">
+    <div class="uniform"><div>
+        <uni-date-picker>
+            <input type="date"
+            value="{{value::change}}"
+            placeholder="{{placeholder}}"
+            disabled="{{disabled}}"
+            readonly$="{{readonly}}"
+            min="{{min}}"
+            max="{{max}}"/>
+        </uni-date-picker>
+    </div></div>
+    <div class="uniform-sd"><div>
+        <div>
+            <input type="date"
+            value="{{value::change}}"
+            placeholder="{{placeholder}}"
+            disabled="{{disabled}}"
+            readonly$="{{readonly}}"
+            min="{{min}}"
+            max="{{max}}"/>
+            <template is="shadow-root" preserve-content>
+                <uni-date-picker><slot></slot></uni-date-picker>
+            </template>
+        </div>
+    </div></div>
+    <section>
+        <h3>Data</h3>
+        <ul>
+            <li>value: <input value="{{value::input}}" type="date"/><span>{{value}}</span></li>
+            <li>placeholder: <input value="{{placeholder::input}}"/><span>{{placeholder}}</span></li>
+            <li>disabled: <input type="checkbox" checked="{{disabled::change}}"/><span>{{disabled}}</span></li>
+            <li>readonly: <input type="checkbox" checked="{{readonly::change}}"/><span>{{readonly}}</span></li>
+            <li>min: <input value="{{min::input}}"/><span>{{min}}</span></li>
+            <li>max: <input value="{{max::input}}"/><span>{{max}}</span></li>
+        </ul>
+    </section>
+    </template>
+
+
+
+    <!-- <template is="shadow-root" for="body>.uniform-sd>div" preserve-content>
+        <uni-date-picker><slot></slot></uni-date-picker>
+    </template> -->
+
+
+</body>
+<script>
+    const templ = document.querySelector('#for-dom-bind');
+    templ.content.querySelectorAll('.uniform > div, .uniform-sd > div')
+        .forEach((section) => {
+            var clonedSection = section.cloneNode(true);
+            clonedSection.innerHTML =  '<pre><code>' +
+            section.innerHTML.replace(/</g, '&lt;')
+            .replace(/>/g,'&gt;')
+            .replace(/^        /gm,'')
+            .replace(/{{/g, '{&shy;{')
+            .replace(/}\"/g, "}\"\n  ")
+            .trim() +
+            '</code></pre>';
+            section.insertAdjacentElement('afterend', clonedSection);
+    });
+    const domBind = document.createElement('dom-bind');
+
+    domBind.addEventListener('dom-change',() => {
+        // apply declarative shadow roots
+        document.querySelectorAll('template[is="shadow-root"]').forEach((templ) => {
+            const host = templ.hasAttribute('for') ? document.querySelector(templ.getAttribute('for')) : templ.parentNode;
+            const sroot = host.attachShadow({
+                mode: 'open'
+            });
+            sroot.appendChild(document.importNode(templ.content, true));
+        });
+        // show code snippets
+    });
+    domBind.appendChild(templ);
+    document.body.appendChild(domBind);
+</script>
+
+</html>

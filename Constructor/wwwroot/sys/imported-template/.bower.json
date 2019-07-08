@@ -1,0 +1,55 @@
+{
+  "name": "imported-template",
+  "version": "3.4.0",
+  "keywords": [
+    "include",
+    "partials",
+    "html",
+    "declarative",
+    "client-side",
+    "partial",
+    "template",
+    "custom-element",
+    "web-components",
+    "polymer"
+  ],
+  "homepage": "https://github.com/Juicy/imported-template",
+  "authors": [
+    "Tomek Wytrebowicz <tomalecpub@gmail.com>",
+    "Joachim Wester <joachimwester@me.com>",
+    "Marcin Warpechowski <marcin@nextgen.pl>"
+  ],
+  "description": "Declarative way for client-side includes boosted with HTML Imports features: control over loaded `<script>`s, caching, de-duping, etc.",
+  "main": "./imported-template.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "../",
+    "test",
+    "tests",
+    "examples",
+    "preview.png",
+    "wct.conf.json"
+  ],
+  "dependencies": {
+    "juicy-html": "^4.0.0"
+  },
+  "devDependencies": {
+    "iron-icon": "PolymerElements/iron-icon#~2.0.0",
+    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#~2.0.0",
+    "web-component-tester": "^6.2.0",
+    "polymer": "^2.0.0",
+    "webcomponentsjs": "^1.0.0"
+  },
+  "_release": "3.4.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "3.4.0",
+    "commit": "ab97598bf2e4fed946662e0a9bd0325f87a9209d"
+  },
+  "_source": "https://github.com/Juicy/imported-template.git",
+  "_target": "^3.4.0",
+  "_originalSource": "imported-template"
+}

@@ -1,0 +1,50 @@
+{
+  "Html": "/Constructor/ProductPage.html",
+  "Branches": [
+    {
+      "ObjectNoStr": "",
+      "Name": "",
+      "IsCurrent": false,
+      "SelectTrigger$": 0
+    }
+  ],
+  "Commits": [
+    {
+      "ObjectNoStr": "",
+      "Name": "",
+      "IsCurrent": false,
+      "SelectTrigger$": 0
+    }
+  ],
+  "IsEditing": false,
+  "IsHistory": false,
+  "Product": {
+    "Name$": "",
+    "ImageUrl$": "",
+    "Description$": "",
+    "Modules": [
+      {
+        "Name$": "",
+        "Description$": "",
+        "Price$": 0,
+        "Quantity$": 0,
+        "ImageUrl$": "",
+        "TotalAmount": 0,
+        "DeleteTrigger$": 0,
+        "IsModified": false
+      }
+    ],
+    "TotalAmount": 0
+  },
+  "InsertModuleTrigger$": 0,
+  "CreateCommitTrigger$": 0,
+  "CloseCommitName$": "",
+  "CloseCommitTrigger$": 0,
+  "ForkBranchTrigger$": 0,
+  "ForkBranchDialog": {
+    "IsVisible$": false,
+    "Name$": "",
+    "SubmitTrigger$": 0,
+    "CancelTrigger$": 0
+  }
+}

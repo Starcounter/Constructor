@@ -1,0 +1,49 @@
+{
+  "name": "palindrom-client",
+  "description": "Three-way data binding server - JS - HTML kept in flawless sync with JSON Patch, WebSockets/HTTP.",
+  "private": true,
+  "authors": [
+    "Tomek Wytrębowicz"
+  ],
+  "keywords": [
+    "web-components",
+    "polymer",
+    "json-patch",
+    "palindrom",
+    "binding",
+    "puppetjs",
+    "template",
+    "web-socket",
+    "http",
+    "json"
+  ],
+  "main": "palindrom-client.html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Palindrom/palindrom-polymer-client.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/Palindrom/palindrom-polymer-client",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test/",
+    "Gruntfile.js"
+  ],
+  "dependencies": {
+    "Palindrom": "Palindrom/Palindrom#^v6.0.0"
+  },
+  "devDependencies": {
+    "polymer": "^2.6.1",
+    "iron-component-page": "PolymerElements/iron-component-page#1 - 2",
+    "paper-styles": "polymerelements/paper-styles#1 - 2",
+    "test-fixture": "PolymerElements/test-fixture#^3.0.0",
+    "web-component-tester": "^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "jasmine-core": "jasmine#^2.4.1",
+    "jasmine-ajax": "^3.2.0",
+    "starcounter-include": "Starcounter/starcounter-include#master",
+    "fast-json-patch": "^2.0.6"
+  }
+}

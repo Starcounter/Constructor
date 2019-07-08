@@ -1,0 +1,143 @@
+button {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.btn {
+    min-width: 100px;
+    min-height: 35px;
+    padding: 8px 15px;
+    font: 14px 'Inter';
+    color: #181818;
+    box-shadow: 0px 0px 0px rgba(156, 156, 156, 0.25);
+    transition: .12s box-shadow ease-in-out;
+    border-radius: 2px;
+}
+
+.btn:hover {
+    box-shadow: 0px 2px 2px rgba(156, 156, 156, 0.25);
+}
+
+.btn--flat {
+    background: #f1f1f1;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.branch-list {
+    margin-top: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.input {
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    border: 0;
+    background-color: transparent;
+    border-bottom: 1px solid #3333;
+    padding: 5px 0px 4px 0px;
+    margin-bottom: 5px;
+}
+
+
+
+.btn__primary {
+    background-color: #BDCDE8;
+    color: #4A6594;
+}
+
+.btn__primary--save {
+    background-color: #ACDFBA;
+    color: #2B7540;
+}
+
+.btn__secondary {
+    border: 1px solid #3333;
+    background: transparent;
+    transition: .15s background ease-in-out;
+}
+
+.btn__secondary--save {
+    border-color: #2B7540;
+    color: #2B7540;
+}
+
+.btn__secondary--danger {
+    border-color: #931D1D;
+    color: #931D1D
+}
+
+.btn__secondary--flat {
+    border-color: #5F5F5F;
+    color: #5F5F5F;
+}
+
+.btn__secondary--danger:hover {
+    background: #F5B5B5;
+}
+
+table {
+    margin-top: 60px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    font-size: 10px;
+    font-weight: 600;
+    color: #B6B6B6;
+    text-transform: uppercase;
+    text-align: left;
+    border-bottom: 1px solid #B6B6B6;
+    padding-bottom: 10px;
+    padding-right: 10px;
+}
+
+table td {
+    font-size: 14px;
+    padding-right: 10px;
+}
+
+table tbody tr {
+    height: 50px;
+}
+
+tbody tr:hover {
+    background: #f8f8f8;
+}
+
+input.crud {
+    border-bottom: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    margin-bottom: 0px;
+}
+
+input[data-editable] {
+    background: #EDEDED;
+}
+
+input.item__button-image {
+    opacity: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    width: 26px;
+    border: 1px solid #931D1D;
+    border-radius: 2px;
+    padding: 3px;
+    transition: .15s background-color ease-in-out;
+}
+
+    input.item__button-image:hover {
+        background-color: #E39A9A;
+    }

@@ -1,0 +1,26 @@
+{
+  "verbose": false,
+  "trackConsoleError": false,
+  "plugins": {
+    "local": {
+      "browsers": ["chrome"]
+    },
+    "sauce": {
+      "disabled": false,
+      "browsers": [
+        {
+          "browserName": "firefox",
+          "platform": "Windows 10"
+        },
+        {
+          "browserName": "microsoftedge",
+          "platform": "Windows 10"
+        },
+        {
+          "browserName": "safari",
+          "platform": "macOS 10.13"
+        }
+      ]
+    }
+  }
+}
