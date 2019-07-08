@@ -141,7 +141,7 @@
     <Content Include="wwwroot\Constructor\images\bicycle-seat.jpg" />
     <Content Include="wwwroot\Constructor\images\bicycle-steering-bar.jpg" />
     <Content Include="wwwroot\Constructor\images\bicycle-wheel.jpg" />
-    <Content Include="wwwroot\Constructor\images\bicycle.png" />
+    <Content Include="wwwroot\Constructor\images\bicycle.jpg" />
     <Content Include="wwwroot\Constructor\images\computer-0.jpg" />
     <Content Include="wwwroot\Constructor\images\computer-1.png" />
     <Content Include="wwwroot\Constructor\images\computer-2.png" />

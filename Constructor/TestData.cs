@@ -24,7 +24,7 @@ namespace Constructor
                 Product product = new Product(repository)
                 {
                     Name = "Bicycle",
-                    ImageUrl = "/Constructor/images/bicycle.png"
+                    ImageUrl = "/Constructor/images/bicycle.jpg"
                 };
 
                 branch.FinishEdit();
