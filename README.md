@@ -39,3 +39,8 @@ The application has two entry points:
 
  - Please report any Starcounter related issues at (`Starcounter/Home`)[https://github.com/Starcounter/Home/issues] issue tracker.
  - Please report any Demo related issues in this repository issue tracker.
+
+ ## Limitation & Performance
+
+ - This demo app is designed for a single user usage.
+ - This demo app is not optimized and shall not be used for any benchmarking or performance references.
