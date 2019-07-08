@@ -95,6 +95,18 @@ namespace Constructor.ViewModels
             this.Commits.Data = this.GetCommits(this.Repository.CurrentBranch);
         }
 
+        protected void Handle(Input.CancelCommitTrigger action)
+        {
+            action.Cancel();
+
+            Db.Transact(() =>
+            {
+                this.Repository.CurrentBranch.CancelEdit();
+            });
+
+            this.Commits.Data = this.GetCommits(this.Repository.CurrentBranch);
+        }
+
         protected void Handle(Input.InsertModuleTrigger action)
         {
             action.Cancel();

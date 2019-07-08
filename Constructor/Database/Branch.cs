@@ -112,6 +112,23 @@ namespace Constructor.Database
             return last;
         }
 
+        public Commit CancelEdit()
+        {
+            Commit last = this.GetLastOwnCommit();
+
+            if (last.IsClosed)
+            {
+                return last;
+            }
+
+            last.Delete();
+            last = this.GetLastOwnCommit();
+
+            this.Repository.CurrentCommit = last;
+
+            return last;
+        }
+
         public void OnDelete()
         {
             foreach (Branch branch in DbLinq.Objects<Branch>().Where(x => x.Parent == this).ToList())
