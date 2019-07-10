@@ -37,7 +37,7 @@ The application has two entry points:
 
  ## Report an issue
 
- - Please report any Starcounter related issues at (`Starcounter/Home`)[https://github.com/Starcounter/Home/issues] issue tracker.
+ - Please report any Starcounter related issues at [`Starcounter/Home`](https://github.com/Starcounter/Home/issues) issue tracker.
  - Please report any Demo related issues in this repository issue tracker.
 
  ## Limitation & Performance
