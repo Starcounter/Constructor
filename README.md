@@ -44,3 +44,22 @@ The application has two entry points:
 
  - This demo app is designed for a single user usage.
  - This demo app is not optimized and shall not be used for any benchmarking or performance references.
+ 
+ ## Screenshots
+ 
+ <details>
+  <summary>Click to expand</summary>
+
+### Home page
+
+![image](https://user-images.githubusercontent.com/6435556/60992658-3ba52a00-a34d-11e9-8f17-c61b982bdd39.png)
+
+### Product page - editing
+
+![image](https://user-images.githubusercontent.com/6435556/60992792-7f982f00-a34d-11e9-8459-ec1d88f485f9.png)
+
+### Product page - viewing
+
+![image](https://user-images.githubusercontent.com/6435556/60992827-96d71c80-a34d-11e9-91fc-facfdb35e63b.png)
+
+</details>
