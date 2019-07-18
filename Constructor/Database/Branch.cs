@@ -9,9 +9,11 @@ namespace Constructor.Database
     [Database]
     public class Branch : IEntity
     {
+        #region Constants
         public const string MasterBranchName = "master";
         public const string InitialCommitName = "Initial commit";
         public const string ForkCommitName = "Fork commit";
+        #endregion
 
         public Repository Repository { get; set; }
         public Branch Parent { get; set; }
