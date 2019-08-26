@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Starcounter;
+﻿using System.Linq;
 using Starcounter.Linq;
+using Starcounter.Nova;
 
 namespace Constructor.Database
 {
     [Database]
-    public class Product : Item, IEntity
+    public class Product : Item
     {
         public Product(Repository repository) : base(repository)
         {
@@ -21,7 +19,7 @@ namespace Constructor.Database
         {
             foreach (Module module in DbLinq.Objects<Module>().Where(x => x.Product == this).ToList())
             {
-                module.Delete();
+                Db.Delete(module);
             }
 
             base.OnDelete();

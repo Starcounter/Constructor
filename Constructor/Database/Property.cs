@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Starcounter;
+using Starcounter.Nova;
 
 namespace Constructor.Database
 {
@@ -16,43 +15,43 @@ namespace Constructor.Database
         public int? IntValue { get; set; }
         public bool? BoolValue { get; set; }
 
-        public static string GetStringValue(Commit commit, Item item, [CallerMemberName]string propertyName = "")
+        public static string GetStringValue(Commit commit, Item item, [CallerMemberName] string propertyName = "")
         {
             Property property = GetReadProperty(commit, item, propertyName);
 
             if (property == null)
             {
-                return default(string);
+                return default;
             }
 
             return property.StringValue;
         }
 
-        public static int? GetIntValue(Commit commit, Item item, [CallerMemberName]string propertyName = "")
+        public static int? GetIntValue(Commit commit, Item item, [CallerMemberName] string propertyName = "")
         {
             Property property = GetReadProperty(commit, item, propertyName);
 
             if (property == null)
             {
-                return default(int?);
+                return default;
             }
 
             return property.IntValue;
         }
 
-        public static bool? GetBoolValue(Commit commit, Item item, [CallerMemberName]string propertyName = "")
+        public static bool? GetBoolValue(Commit commit, Item item, [CallerMemberName] string propertyName = "")
         {
             Property property = GetReadProperty(commit, item, propertyName);
 
             if (property == null)
             {
-                return default(bool?);
+                return default;
             }
 
             return property.BoolValue;
         }
 
-        public static void SetStringValue(Commit commit, Item item, string value, [CallerMemberName]string propertyName = "")
+        public static void SetStringValue(Commit commit, Item item, string value, [CallerMemberName] string propertyName = "")
         {
             Db.Transact(() =>
             {
@@ -61,7 +60,7 @@ namespace Constructor.Database
             });
         }
 
-        public static void SetIntValue(Commit commit, Item item, int? value, [CallerMemberName]string propertyName = "")
+        public static void SetIntValue(Commit commit, Item item, int? value, [CallerMemberName] string propertyName = "")
         {
             Db.Transact(() =>
             {
@@ -70,7 +69,7 @@ namespace Constructor.Database
             });
         }
 
-        public static void SetBoolValue(Commit commit, Item item, bool? value, [CallerMemberName]string propertyName = "")
+        public static void SetBoolValue(Commit commit, Item item, bool? value, [CallerMemberName] string propertyName = "")
         {
             Db.Transact(() =>
             {

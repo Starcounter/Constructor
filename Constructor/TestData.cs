@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Starcounter;
-using Starcounter.Linq;
 using Constructor.Database;
+using Starcounter.Nova;
 
 namespace Constructor
 {
@@ -16,7 +12,7 @@ namespace Constructor
             Db.Transact(() =>
             {
                 Repository repository = new Repository("Bicycle Repository");
-                Branch branch = repository.Branches.FirstOrDefault(x => x.Parent == null);
+                Branch branch = repository.Branches.First(x => x.Parent == null);
 
                 branch.StartEdit();
                 repository.CurrentCommit.Name = "Create Bicycle";
@@ -111,8 +107,8 @@ namespace Constructor
             {
                 Random rand = new Random();
                 Repository repository = new Repository("Computer Repository");
-                Branch branch = repository.Branches.FirstOrDefault(x => x.Parent == null);
-                string[] productImages = new string[]
+                Branch branch = repository.Branches.First(x => x.Parent == null);
+                var productImages = new[]
                 {
                     "/Constructor/images/computer-0.jpg",
                     "/Constructor/images/computer-1.png",

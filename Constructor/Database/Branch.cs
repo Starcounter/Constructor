@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Starcounter;
 using Starcounter.Linq;
 using Starcounter.Nova;
 
@@ -39,7 +38,7 @@ namespace Constructor.Database
         public Branch(string name, Branch branch)
         {
             Parent = branch ?? throw new ArgumentNullException(nameof(branch));
-            Repository = branch?.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
+            Repository = branch.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
             Key = $"{branch.Key}-{Db.GetOid(this)}";
             Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException(nameof(name));
 

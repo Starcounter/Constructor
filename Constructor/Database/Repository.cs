@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-using Starcounter;
 using Starcounter.Linq;
+using Starcounter.Nova;
 
 namespace Constructor.Database
 {
     [Database]
-    public class Repository : IEntity
+    public class Repository
     {
         public Branch CurrentBranch { get; set; }
         public Commit CurrentCommit { get; set; }
@@ -37,12 +36,12 @@ namespace Constructor.Database
         {
             foreach (Product product in Products.ToList())
             {
-                product.Delete();
+                Db.Delete(product);
             }
 
             foreach (Branch branch in Branches.Where(x => x.Parent == null).ToList())
             {
-                branch.Delete();
+                Db.Delete(branch);
             }
         }
     }
