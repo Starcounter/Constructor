@@ -6,24 +6,27 @@ using Starcounter.Nova;
 namespace Constructor.Database
 {
     [Database]
-    public class Repository
+    public abstract class Repository
     {
-        public Branch CurrentBranch { get; set; }
-        public Commit CurrentCommit { get; set; }
-        public string Name { get; set; }
+        public abstract Branch CurrentBranch { get; set; }
+        public abstract Commit CurrentCommit { get; set; }
+        public abstract string Name { get; set; }
 
-        public Repository(string name)
+        public static Repository Create(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentNullException(nameof(name));
             }
 
-            Branch branch = new Branch(this);
+            var instance = Db.Insert<Repository>();
+            Branch branch = Branch.Create(instance);
 
-            Name = name;
-            CurrentBranch = branch;
-            CurrentCommit = branch.GetLastOwnCommit();
+            instance.Name = name;
+            instance.CurrentBranch = branch;
+            instance.CurrentCommit = branch.GetLastOwnCommit();
+
+            return instance;
         }
 
         public IQueryable<Product> Products => DbLinq.Objects<Product>().Where(x => x.Repository == this);

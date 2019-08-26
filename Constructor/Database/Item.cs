@@ -8,12 +8,14 @@ namespace Constructor.Database
     [Database]
     public abstract class Item
     {
-        public Repository Repository { get; set; }
+        public abstract Repository Repository { get; set; }
 
-        public Item(Repository repository)
+        public static T CreateItem<T>(Repository repository) where T : Item
         {
-            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            IsDeleted = false;
+            var instance = Db.Insert<T>();
+            instance.Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            instance.IsDeleted = false;
+            return instance;
         }
 
         public string Name

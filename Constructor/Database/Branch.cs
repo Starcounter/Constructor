@@ -7,7 +7,7 @@ using Starcounter.Nova;
 namespace Constructor.Database
 {
     [Database]
-    public class Branch
+    public abstract class Branch
     {
         #region Constants
 
@@ -17,37 +17,10 @@ namespace Constructor.Database
 
         #endregion
 
-        public Repository Repository { get; set; }
-        public Branch Parent { get; set; }
-        public string Key { get; set; }
-        public string Name { get; set; }
-
-        public Branch(Repository repository)
-        {
-            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            Key = Db.GetOid(this).ToString();
-            Name = MasterBranchName;
-
-            new Commit(this)
-            {
-                Name = InitialCommitName,
-                IsClosed = true
-            };
-        }
-
-        public Branch(string name, Branch branch)
-        {
-            Parent = branch ?? throw new ArgumentNullException(nameof(branch));
-            Repository = branch.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
-            Key = $"{branch.Key}-{Db.GetOid(this)}";
-            Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException(nameof(name));
-
-            new Commit(this, branch.GetLastOwnCommit())
-            {
-                Name = ForkCommitName,
-                IsClosed = true
-            };
-        }
+        public abstract Repository Repository { get; set; }
+        public abstract Branch Parent { get; set; }
+        public abstract string Key { get; set; }
+        public abstract string Name { get; set; }
 
         public IQueryable<Commit> OwnCommits => DbLinq.Objects<Commit>().Where(x => x.Branch == this);
 
@@ -60,16 +33,44 @@ namespace Constructor.Database
             get
             {
                 Commit last = GetLastOwnCommit();
-                return Db.SQL<Commit>(
-                    "SELECT c FROM Constructor.Database.Commit c WHERE ? STARTS WITH c.Key ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC", last.Key);
+                const string sql = "SELECT c FROM Constructor.Database.Commit c WHERE ? STARTS WITH c.Key ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC";
+                return Db.SQL<Commit>(sql, last.Key);
             }
+        }
+
+        public static Branch Create(Repository repository)
+        {
+            var instance = Db.Insert<Branch>();
+            instance.Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            instance.Key = Db.GetOid(instance).ToString();
+            instance.Name = MasterBranchName;
+
+            var commit = Commit.Create(instance);
+            commit.Name = InitialCommitName;
+            commit.IsClosed = true;
+
+            return instance;
+        }
+
+        public static Branch Create(string name, Branch branch)
+        {
+            var instance = Db.Insert<Branch>();
+            instance.Parent = branch ?? throw new ArgumentNullException(nameof(branch));
+            instance.Repository = branch.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
+            instance.Key = $"{branch.Key}-{Db.GetOid(instance)}";
+            instance.Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException(nameof(name));
+
+            var commit = Commit.Create(instance, branch.GetLastOwnCommit());
+            commit.Name = ForkCommitName;
+            commit.IsClosed = true;
+
+            return instance;
         }
 
         public Commit GetLastOwnCommit()
         {
-            Commit last = Db.SQL<Commit>("SELECT c FROM Constructor.Database.Commit c WHERE c.Branch = ? ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC",
-                this).First();
-            return last;
+            const string sql = "SELECT c FROM Constructor.Database.Commit c WHERE c.Branch = ? ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC";
+            return Db.SQL<Commit>(sql, this).First();
         }
 
         public Commit StartEdit()
@@ -81,10 +82,8 @@ namespace Constructor.Database
                 return last;
             }
 
-            Commit commit = new Commit(this, last)
-            {
-                Name = $"Edit - {DateTime.Now}"
-            };
+            Commit commit = Commit.Create(this, last);
+            commit.Name = $"Edit - {DateTime.Now}";
 
             Repository.CurrentCommit = commit;
 

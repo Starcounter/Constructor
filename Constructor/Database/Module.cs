@@ -3,13 +3,15 @@
 namespace Constructor.Database
 {
     [Database]
-    public class Module : Item
+    public abstract class Module : Item
     {
-        public Product Product { get; set; }
+        public abstract Product Product { get; set; }
 
-        public Module(Product product) : base(product?.Repository)
+        public static Module Create(Product product)
         {
-            Product = product;
+            var instance = CreateItem<Module>(product?.Repository);
+            instance.Product = product;
+            return instance;
         }
 
         public int Quantity

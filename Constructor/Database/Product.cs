@@ -5,10 +5,11 @@ using Starcounter.Nova;
 namespace Constructor.Database
 {
     [Database]
-    public class Product : Item
+    public abstract class Product : Item
     {
-        public Product(Repository repository) : base(repository)
+        public static Product Create(Repository repository)
         {
+            return CreateItem<Product>(repository);
         }
 
         public IQueryable<Module> Modules => DbLinq.Objects<Module>()

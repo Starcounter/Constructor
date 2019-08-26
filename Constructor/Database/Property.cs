@@ -6,49 +6,36 @@ using Starcounter.Nova;
 namespace Constructor.Database
 {
     [Database]
-    public class Property
+    public abstract class Property
     {
-        public Commit Commit { get; set; }
-        public Item Item { get; set; }
-        public string Name { get; set; }
-        public string StringValue { get; set; }
-        public int? IntValue { get; set; }
-        public bool? BoolValue { get; set; }
+        public abstract Commit Commit { get; set; }
+        public abstract Item Item { get; set; }
+        public abstract string Name { get; set; }
+        public abstract string StringValue { get; set; }
+        public abstract int? IntValue { get; set; }
+        public abstract bool? BoolValue { get; set; }
+
+        public static Property Create()
+        {
+            return Db.Insert<Property>();
+        }
 
         public static string GetStringValue(Commit commit, Item item, [CallerMemberName] string propertyName = "")
         {
             Property property = GetReadProperty(commit, item, propertyName);
-
-            if (property == null)
-            {
-                return default;
-            }
-
-            return property.StringValue;
+            return property?.StringValue;
         }
 
         public static int? GetIntValue(Commit commit, Item item, [CallerMemberName] string propertyName = "")
         {
             Property property = GetReadProperty(commit, item, propertyName);
-
-            if (property == null)
-            {
-                return default;
-            }
-
-            return property.IntValue;
+            return property?.IntValue;
         }
 
         public static bool? GetBoolValue(Commit commit, Item item, [CallerMemberName] string propertyName = "")
         {
             Property property = GetReadProperty(commit, item, propertyName);
-
-            if (property == null)
-            {
-                return default;
-            }
-
-            return property.BoolValue;
+            return property?.BoolValue;
         }
 
         public static void SetStringValue(Commit commit, Item item, string value, [CallerMemberName] string propertyName = "")
@@ -123,12 +110,10 @@ namespace Constructor.Database
 
             if (property == null)
             {
-                property = new Property()
-                {
-                    Commit = commit,
-                    Item = item,
-                    Name = propertyName
-                };
+                property = Create();
+                property.Commit = commit;
+                property.Item = item;
+                property.Name = propertyName;
             }
 
             return property;
