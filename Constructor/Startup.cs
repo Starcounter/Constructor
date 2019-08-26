@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Starcounter.Nova.Extensions.DependencyInjection;
 
 namespace Constructor
 {
@@ -13,14 +14,18 @@ namespace Constructor
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCaching();
+            services.AddStarcounter("Database=./.database/Constructor");
+            services.AddMvc(o => o.EnableEndpointRouting = false);
+            services.AddPalindromDatabaseTransactions();
+            services.AddPalindrom();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app)
-        {
-        }
+        public void Configure(IApplicationBuilder app) => app
+            .UseDeveloperExceptionPage()
+            .UsePalindrom()
+            .UseMvcWithDefaultRoute();
     }
 }

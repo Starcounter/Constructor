@@ -1,21 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Constructor.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Starcounter.Palindrom;
+using Starcounter.Palindrom.AspNetCore;
 
 namespace Constructor.Controllers
 {
     public class ConstructorController : Controller
     {
-        //            Handle.GET("/constructor", () =>
-        //            {
-        //                var page = new IndexPage();
-        //                page.Init();
-        //                return page;
-        //            });
-        //
-        //            Handle.GET("/constructor/product/{?}", (ulong no) =>
-        //            {
-        //                var page = new ProductPage();
-        //                page.Init(no);
-        //                return page;
-        //            });
+        private IPalindromContext PalindromContext { get; }
+
+        public ConstructorController(IPalindromContext palindromContext)
+        {
+            PalindromContext = palindromContext;
+        }
+
+        [Palindrom]
+        public PalindromResult Index()
+        {
+            var page = new IndexPage(PalindromContext);
+            page.Init();
+            return page;
+        }
+
+        [Palindrom, Route("/product/{id}")]
+        public PalindromResult Product(ulong id)
+        {
+            var page = new ProductPage(PalindromContext);
+            page.Init(id);
+            return page;
+        }
     }
 }
