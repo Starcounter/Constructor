@@ -3,16 +3,19 @@ using System.Linq;
 using System.Collections.Generic;
 using Starcounter;
 using Starcounter.Linq;
+using Starcounter.Nova;
 
 namespace Constructor.Database
 {
     [Database]
-    public class Branch : IEntity
+    public class Branch
     {
         #region Constants
+
         public const string MasterBranchName = "master";
         public const string InitialCommitName = "Initial commit";
         public const string ForkCommitName = "Fork commit";
+
         #endregion
 
         public Repository Repository { get; set; }
@@ -22,9 +25,9 @@ namespace Constructor.Database
 
         public Branch(Repository repository)
         {
-            this.Repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            this.Key = this.GetObjectNo().ToString();
-            this.Name = MasterBranchName;
+            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            Key = Db.GetOid(this).ToString();
+            Name = MasterBranchName;
 
             new Commit(this)
             {
@@ -35,10 +38,10 @@ namespace Constructor.Database
 
         public Branch(string name, Branch branch)
         {
-            this.Parent = branch ?? throw new ArgumentNullException(nameof(branch));
-            this.Repository = branch?.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
-            this.Key = $"{branch.Key}-{this.GetObjectNo()}";
-            this.Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException(nameof(name));
+            Parent = branch ?? throw new ArgumentNullException(nameof(branch));
+            Repository = branch?.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
+            Key = $"{branch.Key}-{Db.GetOid(this)}";
+            Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException(nameof(name));
 
             new Commit(this, branch.GetLastOwnCommit())
             {
@@ -57,20 +60,22 @@ namespace Constructor.Database
         {
             get
             {
-                Commit last = this.GetLastOwnCommit();
-                return Db.SQL<Commit>("SELECT c FROM Constructor.Database.Commit c WHERE ? STARTS WITH c.Key ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC", last.Key);
+                Commit last = GetLastOwnCommit();
+                return Db.SQL<Commit>(
+                    "SELECT c FROM Constructor.Database.Commit c WHERE ? STARTS WITH c.Key ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC", last.Key);
             }
         }
 
         public Commit GetLastOwnCommit()
         {
-            Commit last = Db.SQL<Commit>("SELECT c FROM Constructor.Database.Commit c WHERE c.Branch = ? ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC", this).First();
+            Commit last = Db.SQL<Commit>("SELECT c FROM Constructor.Database.Commit c WHERE c.Branch = ? ORDER BY c.CreatedAtUtc DESC, ObjectNo DESC",
+                this).First();
             return last;
         }
 
         public Commit StartEdit()
         {
-            Commit last = this.GetLastOwnCommit();
+            Commit last = GetLastOwnCommit();
 
             if (!last.IsClosed)
             {
@@ -82,14 +87,14 @@ namespace Constructor.Database
                 Name = $"Edit - {DateTime.Now}"
             };
 
-            this.Repository.CurrentCommit = commit;
+            Repository.CurrentCommit = commit;
 
             return commit;
         }
 
         public Commit FinishEdit(string name = null)
         {
-            Commit last = this.GetLastOwnCommit();
+            Commit last = GetLastOwnCommit();
 
             if (last.IsClosed)
             {
@@ -98,9 +103,9 @@ namespace Constructor.Database
 
             if (!last.Properties.Any())
             {
-                last.Delete();
-                last = this.GetLastOwnCommit();
-                this.Repository.CurrentCommit = last;
+                Db.Delete(last);
+                last = GetLastOwnCommit();
+                Repository.CurrentCommit = last;
                 return last;
             }
 
@@ -116,17 +121,17 @@ namespace Constructor.Database
 
         public Commit CancelEdit()
         {
-            Commit last = this.GetLastOwnCommit();
+            Commit last = GetLastOwnCommit();
 
             if (last.IsClosed)
             {
                 return last;
             }
 
-            last.Delete();
-            last = this.GetLastOwnCommit();
+            Db.Delete(last);
+            last = GetLastOwnCommit();
 
-            this.Repository.CurrentCommit = last;
+            Repository.CurrentCommit = last;
 
             return last;
         }
@@ -135,12 +140,12 @@ namespace Constructor.Database
         {
             foreach (Branch branch in DbLinq.Objects<Branch>().Where(x => x.Parent == this).ToList())
             {
-                branch.Delete();
+                Db.Delete(branch);
             }
 
-            foreach (Commit commit in this.OwnCommits.ToList())
+            foreach (Commit commit in OwnCommits.ToList())
             {
-                commit.Delete();
+                Db.Delete(commit);
             }
         }
     }

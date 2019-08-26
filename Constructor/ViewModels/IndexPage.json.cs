@@ -11,7 +11,7 @@ namespace Constructor.ViewModels
     {
         public void Init()
         {
-            this.RefreshProducts();
+            RefreshProducts();
         }
 
         public void RefreshProducts()
@@ -29,7 +29,7 @@ namespace Constructor.ViewModels
             TestData data = new TestData();
 
             data.CreateDefaultBicycleProduct();
-            this.RefreshProducts();
+            RefreshProducts();
         }
 
         protected void Handle(Input.CreateDefaultComputerProductTrigger action)
@@ -39,7 +39,7 @@ namespace Constructor.ViewModels
             TestData data = new TestData();
 
             data.CreateDefaultComputerProduct();
-            this.RefreshProducts();
+            RefreshProducts();
         }
 
         [IndexPage_json.Products]
@@ -50,7 +50,7 @@ namespace Constructor.ViewModels
 
             protected void Handle(Input.DeleteTrigger action)
             {
-                this.ParentPage.Products.Remove(this);
+                ParentPage.Products.Remove(this);
 
                 Db.Transact(() =>
                 {
@@ -84,7 +84,7 @@ namespace Constructor.ViewModels
 
                 action.Cancel();
                 this.VisibleTrigger = false;
-                this.ParentPage.RefreshProducts();
+                ParentPage.RefreshProducts();
             }
 
             protected void Handle(Input.CancelTrigger action)

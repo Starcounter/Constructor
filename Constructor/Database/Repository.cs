@@ -22,9 +22,9 @@ namespace Constructor.Database
 
             Branch branch = new Branch(this);
 
-            this.Name = name;
-            this.CurrentBranch = branch;
-            this.CurrentCommit = branch.GetLastOwnCommit();
+            Name = name;
+            CurrentBranch = branch;
+            CurrentCommit = branch.GetLastOwnCommit();
         }
 
         public IQueryable<Product> Products => DbLinq.Objects<Product>().Where(x => x.Repository == this);
@@ -35,12 +35,12 @@ namespace Constructor.Database
 
         public void OnDelete()
         {
-            foreach (Product product in this.Products.ToList())
+            foreach (Product product in Products.ToList())
             {
                 product.Delete();
             }
 
-            foreach (Branch branch in this.Branches.Where(x => x.Parent == null).ToList())
+            foreach (Branch branch in Branches.Where(x => x.Parent == null).ToList())
             {
                 branch.Delete();
             }

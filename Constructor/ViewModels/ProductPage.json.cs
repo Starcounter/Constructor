@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Starcounter;
 using Starcounter.Linq;
 using Constructor.Database;
+using Starcounter.Nova;
 
 namespace Constructor.ViewModels
 {
@@ -19,13 +20,13 @@ namespace Constructor.ViewModels
         public void Init(Product product)
         {
             this.Product.Data = product ?? throw new ArgumentNullException(nameof(product));
-            this.Repository = product.Repository ?? throw new ArgumentNullException(nameof(product.Repository));
+            Repository = product.Repository ?? throw new ArgumentNullException(nameof(product.Repository));
 
-            List<Branch> branches = this.Repository.Branches
+            List<Branch> branches = Repository.Branches
                 .OrderBy(x => x.Parent.GetObjectNo())
                 .ThenBy(x => x.GetObjectNo())
                 .ToList();
-            Branch branch = this.Repository.CurrentBranch;
+            Branch branch = Repository.CurrentBranch;
 
             if (branch == null)
             {
@@ -36,12 +37,12 @@ namespace Constructor.ViewModels
 
             Db.Transact(() =>
             {
-                this.SelectBranch(branch);
+                SelectBranch(branch);
             });
         }
 
-        public bool IsEditing => !this.Repository.CurrentCommit.IsClosed;
-        public bool IsHistory => !this.Commits.Last().Data.Equals(this.Repository.CurrentCommit);
+        public bool IsEditing => !Repository.CurrentCommit.IsClosed;
+        public bool IsHistory => !this.Commits.Last().Data.Equals(Repository.CurrentCommit);
 
         protected List<Commit> GetCommits(Branch branch)
         {
@@ -51,22 +52,22 @@ namespace Constructor.ViewModels
 
         protected void SelectBranch(Branch branch)
         {
-            List<Commit> commits = this.GetCommits(branch);
+            List<Commit> commits = GetCommits(branch);
             Commit commit = commits.First();
 
             this.Commits.Data = commits;
-            this.Repository.CurrentBranch = branch;
-            this.Repository.CurrentCommit = commit;
+            Repository.CurrentBranch = branch;
+            Repository.CurrentCommit = commit;
         }
 
         protected void SelectCommit(Commit commit)
         {
-            if (this.IsEditing)
+            if (IsEditing)
             {
                 return;
             }
 
-            this.Repository.CurrentCommit = commit;
+            Repository.CurrentCommit = commit;
         }
 
         protected void Handle(Input.CreateCommitTrigger action)
@@ -75,10 +76,10 @@ namespace Constructor.ViewModels
 
             Db.Transact(() =>
             {
-                Branch branch = this.Repository.CurrentBranch;
+                Branch branch = Repository.CurrentBranch;
                 Commit commit = branch.StartEdit();
                 
-                this.Commits.Data = this.GetCommits(branch);
+                this.Commits.Data = GetCommits(branch);
                 this.CloseCommitName = commit.Name;
             });
         }
@@ -89,10 +90,10 @@ namespace Constructor.ViewModels
 
             Db.Transact(() =>
             {
-                this.Repository.CurrentBranch.FinishEdit(this.CloseCommitName);
+                Repository.CurrentBranch.FinishEdit(this.CloseCommitName);
             });
 
-            this.Commits.Data = this.GetCommits(this.Repository.CurrentBranch);
+            this.Commits.Data = GetCommits(Repository.CurrentBranch);
         }
 
         protected void Handle(Input.CancelCommitTrigger action)
@@ -101,10 +102,10 @@ namespace Constructor.ViewModels
 
             Db.Transact(() =>
             {
-                this.Repository.CurrentBranch.CancelEdit();
+                Repository.CurrentBranch.CancelEdit();
             });
 
-            this.Commits.Data = this.GetCommits(this.Repository.CurrentBranch);
+            this.Commits.Data = GetCommits(Repository.CurrentBranch);
         }
 
         protected void Handle(Input.InsertModuleTrigger action)
@@ -113,7 +114,7 @@ namespace Constructor.ViewModels
 
             Db.Transact(() =>
             {
-                if (this.Repository.CurrentCommit.IsClosed)
+                if (Repository.CurrentCommit.IsClosed)
                 {
                     return;
                 }
@@ -126,7 +127,7 @@ namespace Constructor.ViewModels
         partial class ProductPage_Branches : Json, IBound<Branch>
         {
             public ProductPage ParentPage => this.Parent.Parent as ProductPage;
-            public bool IsCurrent => this.ParentPage?.Repository?.CurrentBranch?.Equals(this.Data) ?? false;
+            public bool IsCurrent => ParentPage?.Repository?.CurrentBranch?.Equals(this.Data) ?? false;
 
             protected override void OnData()
             {
@@ -140,7 +141,7 @@ namespace Constructor.ViewModels
 
                 Db.Transact(() =>
                 {
-                    this.ParentPage.SelectBranch(this.Data);
+                    ParentPage.SelectBranch(this.Data);
                 });
             }
         }
@@ -149,7 +150,7 @@ namespace Constructor.ViewModels
         partial class ProductPage_Commits : Json, IBound<Commit>
         {
             public ProductPage ParentPage => this.Parent.Parent as ProductPage;
-            public bool IsCurrent => this.ParentPage?.Repository?.CurrentCommit?.Equals(this.Data) ?? false;
+            public bool IsCurrent => ParentPage?.Repository?.CurrentCommit?.Equals(this.Data) ?? false;
 
             protected override void OnData()
             {
@@ -163,7 +164,7 @@ namespace Constructor.ViewModels
 
                 Db.Transact(() =>
                 {
-                    this.ParentPage.SelectCommit(this.Data);
+                    ParentPage.SelectCommit(this.Data);
                 });
             }
         }
@@ -207,7 +208,7 @@ namespace Constructor.ViewModels
             {
                 if (action.Value)
                 {
-                    this.Name = $"{this.ParentPage?.Repository?.CurrentBranch?.Name} - fork";
+                    this.Name = $"{ParentPage?.Repository?.CurrentBranch?.Name} - fork";
                 }
             }
 
@@ -223,7 +224,7 @@ namespace Constructor.ViewModels
                 this.IsVisible = false;
 
                 Branch branch = null;
-                ProductPage parent = this.ParentPage;
+                ProductPage parent = ParentPage;
 
                 Db.Transact(() =>
                 {

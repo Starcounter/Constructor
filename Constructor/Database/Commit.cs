@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Starcounter;
 using Starcounter.Linq;
+using Starcounter.Nova;
 
 namespace Constructor.Database
 {
@@ -18,15 +19,15 @@ namespace Constructor.Database
 
         public Commit(Branch branch)
         {
-            this.Branch = branch ?? throw new ArgumentNullException(nameof(branch));
-            this.CreatedAtUtc = DateTime.UtcNow;
-            this.Key = $"{this.GetObjectNo()}";
+            Branch = branch ?? throw new ArgumentNullException(nameof(branch));
+            CreatedAtUtc = DateTime.UtcNow;
+            Key = $"{Db.GetOid(this)}";
         }
 
         public Commit(Branch branch, Commit previousCommit) : this(branch)
         {
-            this.Previous = previousCommit ?? throw new ArgumentNullException(nameof(previousCommit));
-            this.Key = $"{previousCommit.Key}-{this.GetObjectNo()}";
+            Previous = previousCommit ?? throw new ArgumentNullException(nameof(previousCommit));
+            Key = $"{previousCommit.Key}-{Db.GetOid(this)}";
         }
 
         public IQueryable<Property> Properties => DbLinq.Objects<Property>().Where(x => x.Commit == this);
