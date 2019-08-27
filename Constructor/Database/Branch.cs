@@ -134,14 +134,15 @@ namespace Constructor.Database
             return last;
         }
 
-        public void OnDelete()
+        public void PreDelete()
         {
-            foreach (Branch branch in DbLinq.Objects<Branch>().Where(x => x.ParentBranch == this).ToList())
+            foreach (var branch in DbLinq.Objects<Branch>().Where(x => x.ParentBranch == this))
             {
+                branch.PreDelete();
                 Db.Delete(branch);
             }
 
-            foreach (Commit commit in OwnCommits.ToList())
+            foreach (var commit in OwnCommits)
             {
                 Db.Delete(commit);
             }

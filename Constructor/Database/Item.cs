@@ -48,9 +48,9 @@ namespace Constructor.Database
             set => Property.SetIntValue(Repository.CurrentCommit, this, value);
         }
 
-        public virtual void OnDelete()
+        public virtual void PreDelete()
         {
-            foreach (Property property in DbLinq.Objects<Property>().Where(x => x.Item == this).ToList())
+            foreach (var property in DbLinq.Objects<Property>().Where(x => x.Item == this))
             {
                 Db.Delete(property);
             }

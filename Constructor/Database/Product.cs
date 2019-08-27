@@ -16,14 +16,14 @@ namespace Constructor.Database
             .Where(x => x.Product == this && !x.IsDeleted)
             .OrderBy(x => x.SortIndex);
 
-        public override void OnDelete()
+        public override void PreDelete()
         {
-            foreach (var module in DbLinq.Objects<Module>().Where(x => x.Product == this).ToList())
+            foreach (var module in DbLinq.Objects<Module>().Where(x => x.Product == this))
             {
                 Db.Delete(module);
             }
 
-            base.OnDelete();
+            base.PreDelete();
         }
     }
 }

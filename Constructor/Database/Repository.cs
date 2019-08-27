@@ -20,7 +20,7 @@ namespace Constructor.Database
             }
 
             var instance = Db.Insert<Repository>();
-            Branch branch = Branch.Create(instance);
+            var branch = Branch.Create(instance);
 
             instance.Name = name;
             instance.CurrentBranch = branch;
@@ -30,20 +30,20 @@ namespace Constructor.Database
         }
 
         public IQueryable<Product> Products => DbLinq.Objects<Product>().Where(x => x.Repository == this);
-
         public IQueryable<Branch> Branches => DbLinq.Objects<Branch>().Where(x => x.Repository == this);
-
         public IQueryable<Commit> Commits => DbLinq.Objects<Commit>().Where(x => x.Branch.Repository == this);
 
-        public void OnDelete()
+        public void PreDelete()
         {
-            foreach (Product product in Products.ToList())
+            foreach (var product in Products)
             {
+                product.PreDelete();
                 Db.Delete(product);
             }
 
-            foreach (Branch branch in Branches.Where(x => x.ParentBranch == null).ToList())
+            foreach (var branch in Branches.Where(x => x.ParentBranch == null))
             {
+                branch.PreDelete();
                 Db.Delete(branch);
             }
         }

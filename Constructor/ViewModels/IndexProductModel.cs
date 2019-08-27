@@ -20,7 +20,11 @@ namespace Constructor.ViewModels
             var index = ParentPage.Products.IndexOf(this);
             ParentPage.Products.RemoveAt(index);
             ParentPage.RemovedFromCollection(p => p.Products, index);
-            Db.Transact(() => Db.Delete(Product.Repository));
+            Db.Transact(() =>
+            {
+                Product.Repository.PreDelete();
+                Db.Delete(Product.Repository);
+            });
         }
 
         public IndexProductModel(Product product, IndexPage parent, IPalindromContext context) : base(context)
