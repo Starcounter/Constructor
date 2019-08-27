@@ -55,10 +55,10 @@ namespace Constructor.ViewModels
                 if (!parent.Repository.CurrentCommit.IsClosed)
                     return;
                 Branch current = parent.Repository.CurrentBranch;
-                var name = Name.Trim();
-                if (string.IsNullOrEmpty(name))
-                    name = $"{current.Name}-fork";
-                branch = Branch.Create(name, current);
+                var trimmedName = Name.Trim();
+                if (string.IsNullOrEmpty(trimmedName))
+                    trimmedName = $"{current.Name}-fork";
+                branch = Branch.Create(trimmedName, current);
                 parent.SelectBranch(branch);
             });
 
