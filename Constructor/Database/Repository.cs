@@ -42,7 +42,7 @@ namespace Constructor.Database
                 Db.Delete(product);
             }
 
-            foreach (Branch branch in Branches.Where(x => x.Parent == null).ToList())
+            foreach (Branch branch in Branches.Where(x => x.ParentBranch == null).ToList())
             {
                 Db.Delete(branch);
             }

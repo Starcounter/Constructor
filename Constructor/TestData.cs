@@ -12,7 +12,7 @@ namespace Constructor
             Db.Transact(() =>
             {
                 Repository repository = Repository.Create("Bicycle Repository");
-                Branch branch = repository.Branches.First(x => x.Parent == null);
+                Branch branch = repository.Branches.First(x => x.ParentBranch == null);
 
                 branch.StartEdit();
                 repository.CurrentCommit.Name = "Create Bicycle";
@@ -92,7 +92,7 @@ namespace Constructor
             {
                 Random rand = new Random();
                 Repository repository = Repository.Create("Computer Repository");
-                Branch branch = repository.Branches.First(x => x.Parent == null);
+                Branch branch = repository.Branches.First(x => x.ParentBranch == null);
                 var productImages = new[]
                 {
                     "/Constructor/images/computer-0.jpg",
@@ -236,7 +236,7 @@ namespace Constructor
                 radeon2.ImageUrl = "/Constructor/images/xfx-radeon-rx-5700.jpg";
 
                 branch.FinishEdit();
-                branch = repository.Branches.First(x => x.Parent == null);
+                branch = repository.Branches.First(x => x.ParentBranch == null);
                 repository.CurrentBranch = branch;
                 repository.CurrentCommit = branch.GetLastOwnCommit();
             });

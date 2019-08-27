@@ -18,7 +18,7 @@ namespace Constructor.Database
         #endregion
 
         public abstract Repository Repository { get; set; }
-        public abstract Branch Parent { get; set; }
+        public abstract Branch ParentBranch { get; set; }
         public abstract string Key { get; set; }
         public abstract string Name { get; set; }
 
@@ -55,7 +55,7 @@ namespace Constructor.Database
         public static Branch Create(string name, Branch branch)
         {
             var instance = Db.Insert<Branch>();
-            instance.Parent = branch ?? throw new ArgumentNullException(nameof(branch));
+            instance.ParentBranch = branch ?? throw new ArgumentNullException(nameof(branch));
             instance.Repository = branch.Repository ?? throw new ArgumentNullException(nameof(branch.Repository));
             instance.Key = $"{branch.Key}-{Db.GetOid(instance)}";
             instance.Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException(nameof(name));
@@ -136,7 +136,7 @@ namespace Constructor.Database
 
         public void OnDelete()
         {
-            foreach (Branch branch in DbLinq.Objects<Branch>().Where(x => x.Parent == this).ToList())
+            foreach (Branch branch in DbLinq.Objects<Branch>().Where(x => x.ParentBranch == this).ToList())
             {
                 Db.Delete(branch);
             }

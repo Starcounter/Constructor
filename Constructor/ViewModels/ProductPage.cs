@@ -10,138 +10,100 @@ namespace Constructor.ViewModels
 {
     public class ProductPage : TransientViewModel
     {
-        public string Html => "/Constructor/ProductPage.html";
         public List<BranchModel> Branches { get; }
         public List<CommitModel> Commits { get; }
-        public ProductModel Product { get; private set; }
+        public ProductModel Product { get; }
         public bool IsEditing => !Repository.CurrentCommit.IsClosed;
-        public bool IsHistory => !this.Commits.Last().Commit.Equals(Repository.CurrentCommit);
-        public void InsertModule() { }
-        public void CreateCommit() { }
+        public bool IsHistory => !Commits.Last().Commit.Equals(Repository.CurrentCommit);
         public string CloseCommitName { get; set; }
-        public void CloseCommit() { }
-        public void CancelCommit() { }
-        public void ForkBranch() { }
         public ForkBranchDialogModel ForkBranchDialog { get; }
-        protected Repository Repository { get; set; }
 
-        public ProductPage(IPalindromContext context) : base(context) { }
+        public string Html => "/Constructor/ProductPage.html";
 
-        public void Init(ulong productNo)
+        internal Repository Repository { get; }
+
+        public ProductPage(Product product, IPalindromContext context) : base(context)
         {
-            Init(Db.Get<Product>(productNo));
-        }
-
-        public void Init(Product product)
-        {
+            Branches = new List<BranchModel>();
+            Commits = new List<CommitModel>();
             Product = new ProductModel(product, Context);
             Repository = product.Repository ?? throw new ArgumentNullException(nameof(product.Repository));
-
-            List<Branch> branches = Repository.Branches
-                .OrderBy(x => Db.GetOid(x.Parent))
-                .ThenBy(x => Db.GetOid(x))
+            var branches = Repository.Branches
+                .OrderBy(b => Db.GetOid(b.ParentBranch))
+                .ThenBy(b => Db.GetOid(b))
                 .ToList();
+            var branch = Repository.CurrentBranch ?? branches.Single(x => x.ParentBranch == null);
+            ReplaceBranches(branches);
+            Db.Transact(() => SelectBranch(branch));
+            ForkBranchDialog = new ForkBranchDialogModel(this, Context);
+        }
+
+        public void InsertModule()
+        {
+            if (Repository.CurrentCommit.IsClosed)
+                return;
+            Db.Transact(() => Module.Create(Product.Product));
+        }
+
+        public void CreateCommit() => Db.Transact(() =>
+        {
             Branch branch = Repository.CurrentBranch;
+            Commit commit = branch.StartEdit();
+            ReplaceCommits(GetCommits(branch));
+            CloseCommitName = commit.Name;
+        });
 
-            if (branch == null)
-            {
-                branch = branches.Single(x => x.Parent == null);
-            }
+        public void CloseCommit()
+        {
+            Db.Transact(() => Repository.CurrentBranch.FinishEdit(CloseCommitName));
+            ReplaceCommits(GetCommits(Repository.CurrentBranch));
+        }
 
+        public void CancelCommit()
+        {
+            Db.Transact(() => Repository.CurrentBranch.CancelEdit());
+            ReplaceCommits(GetCommits(Repository.CurrentBranch));
+        }
+
+        public void ForkBranch()
+        {
+            // do nothing?
+        }
+
+        private void ReplaceBranches(IEnumerable<Branch> branches)
+        {
             Branches.Clear();
-            var convertedBranches = branches.Select(b => new BranchModel(b, Context));
+            var convertedBranches = branches.Select(b => new BranchModel(b, this, Context));
             Branches.AddRange(convertedBranches);
-
-            Db.Transact(() => { SelectBranch(branch); });
+            this.MemberChanged(p => p.Branches);
         }
 
-        protected List<Commit> GetCommits(Branch branch)
+        private void ReplaceCommits(IEnumerable<Commit> commits)
         {
-            List<Commit> commits = branch.AllCommits.Where(x => !x.IsClosed || x.Properties.Any()).ToList();
-            return commits;
-        }
-
-        protected void SelectBranch(Branch branch)
-        {
-            List<Commit> commits = GetCommits(branch);
-            Commit commit = commits.First();
-
             Commits.Clear();
-            Commits.AddRange(commits.Select(c => new CommitModel(c, Context)));
+            var newCommits = commits.Select(c => new CommitModel(c, this, Context));
+            Commits.AddRange(newCommits);
+            this.MemberChanged(p => p.Commits);
+        }
 
+        private static IEnumerable<Commit> GetCommits(Branch branch)
+        {
+            return branch.AllCommits.Where(x => !x.IsClosed || x.Properties.Any());
+        }
+
+        internal void SelectBranch(Branch branch)
+        {
+            var commits = GetCommits(branch).ToList();
+            var commit = commits[0];
+            ReplaceCommits(commits);
             Repository.CurrentBranch = branch;
             Repository.CurrentCommit = commit;
         }
 
-        protected void SelectCommit(Commit commit)
+        internal void SelectCommit(Commit commit)
         {
-            if (IsEditing)
-            {
-                return;
-            }
-
+            if (IsEditing) return;
             Repository.CurrentCommit = commit;
-        }
-
-
-        public class BranchModel : TransientViewModel
-        {
-            public string ObjectNoStr { get; }
-            public string Name { get; }
-            public bool IsCurrent { get; }
-            public void Select() { }
-
-            public BranchModel(Branch branch, IPalindromContext context) : base(context) { }
-        }
-
-        public class CommitModel : TransientViewModel
-        {
-            public string ObjectNoStr { get; }
-            public string Name { get; }
-            public bool IsCurrent { get; }
-            public void Select() { }
-
-            internal Commit Commit { get; }
-
-            public CommitModel(Commit commit, IPalindromContext context) : base(context)
-            {
-                Commit = commit;
-            }
-        }
-
-        public class ProductModel : TransientViewModel
-        {
-            public string Name { get; set; }
-            public string ImageUrl { get; set; }
-            public string Description { get; set; }
-            public List<ModuleModel> Modules { get; }
-            public long TotalAmount { get; }
-
-            public ProductModel(Product product, IPalindromContext context) : base(context) { }
-
-            public class ModuleModel : TransientViewModel
-            {
-                public string Name { get; set; }
-                public string Description { get; set; }
-                public long Price { get; set; }
-                public long Quantity { get; set; }
-                public string ImageUrl { get; set; }
-                public long TotalAmount { get; }
-                public void Delete() { }
-                public bool IsModified { get; }
-
-                public ModuleModel(IPalindromContext context) : base(context) { }
-            }
-        }
-
-        public class ForkBranchDialogModel : TransientViewModel
-        {
-            public bool IsVisible { get; set; }
-            public string Name { get; set; }
-            public void Submit() { }
-            public void Cancel() { }
-
-            public ForkBranchDialogModel(IPalindromContext context) : base(context) { }
         }
     }
 }

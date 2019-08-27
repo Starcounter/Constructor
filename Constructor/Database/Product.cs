@@ -18,7 +18,7 @@ namespace Constructor.Database
 
         public override void OnDelete()
         {
-            foreach (Module module in DbLinq.Objects<Module>().Where(x => x.Product == this).ToList())
+            foreach (var module in DbLinq.Objects<Module>().Where(x => x.Product == this).ToList())
             {
                 Db.Delete(module);
             }
