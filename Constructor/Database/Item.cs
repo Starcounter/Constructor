@@ -10,6 +10,8 @@ namespace Constructor.Database
     {
         public abstract Repository Repository { get; set; }
 
+        internal static PropertyCrudManager PropertyCrud { get; set; }
+
         public static T CreateItem<T>(Repository repository) where T : Item
         {
             var instance = Db.Insert<T>();
@@ -20,32 +22,32 @@ namespace Constructor.Database
 
         public string Name
         {
-            get => Property.GetStringValue(Repository.CurrentCommit, this);
-            set => Property.SetStringValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetStringValue(this);
+            set => PropertyCrud.SetStringValue(this, value);
         }
 
         public string Description
         {
-            get => Property.GetStringValue(Repository.CurrentCommit, this);
-            set => Property.SetStringValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetStringValue(this);
+            set => PropertyCrud.SetStringValue(this, value);
         }
 
         public string ImageUrl
         {
-            get => Property.GetStringValue(Repository.CurrentCommit, this);
-            set => Property.SetStringValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetStringValue(this);
+            set => PropertyCrud.SetStringValue(this, value);
         }
 
         public bool IsDeleted
         {
-            get => Property.GetBoolValue(Repository.CurrentCommit, this) ?? true;
-            set => Property.SetBoolValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetBoolValue(this) ?? true;
+            set => PropertyCrud.SetBoolValue(this, value);
         }
 
         public int SortIndex
         {
-            get => Property.GetIntValue(Repository.CurrentCommit, this) ?? 0;
-            set => Property.SetIntValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetIntValue(this) ?? 0;
+            set => PropertyCrud.SetIntValue(this, value);
         }
 
         public virtual void PreDelete()

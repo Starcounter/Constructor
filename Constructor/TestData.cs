@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Linq;
 using Constructor.Database;
-using Starcounter.Nova;
+using Starcounter.Palindrom.Database;
 
 namespace Constructor
 {
     public class TestData
     {
+        private ITransactionFactory TransactionFactory { get; }
+
+        public TestData(ITransactionFactory transactionFactory)
+        {
+            TransactionFactory = transactionFactory;
+        }
+
         public void CreateDefaultBicycleProduct()
         {
-            Db.Transact(() =>
+            TransactionFactory.Transact(() =>
             {
                 Repository repository = Repository.Create("Bicycle Repository");
                 Branch branch = repository.Branches.First(x => x.ParentBranch == null);
@@ -88,7 +95,7 @@ namespace Constructor
 
         public void CreateDefaultComputerProduct()
         {
-            Db.Transact(() =>
+            TransactionFactory.Transact(() =>
             {
                 Random rand = new Random();
                 Repository repository = Repository.Create("Computer Repository");

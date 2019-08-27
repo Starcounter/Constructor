@@ -1,12 +1,15 @@
 ﻿using Constructor.Database;
-using Starcounter.Nova;
 using Starcounter.Palindrom;
+using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
 {
     public class IndexNewProductModel : TransientViewModel
     {
+        private IndexPage Parent { get; }
+        private ITransactionFactory TransactionFactory { get; }
+
         private bool isVisible;
         private string name;
 
@@ -30,11 +33,10 @@ namespace Constructor.ViewModels
             }
         }
 
-        private IndexPage Parent { get; }
-
-        public IndexNewProductModel(IndexPage parent, IPalindromContext context) : base(context)
+        public IndexNewProductModel(IndexPage parent, IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
         {
             Parent = parent;
+            TransactionFactory = transactionFactory;
         }
 
         public void Submit()
@@ -42,7 +44,7 @@ namespace Constructor.ViewModels
             if (string.IsNullOrWhiteSpace(Name))
                 return;
             var trimmedName = Name.Trim();
-            Db.Transact(() =>
+            TransactionFactory.Transact(() =>
             {
                 var repository = Repository.Create(Name + " Repository");
                 var product = Product.Create(repository);

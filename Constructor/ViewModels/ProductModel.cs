@@ -2,6 +2,7 @@
 using System.Linq;
 using Constructor.Database;
 using Starcounter.Palindrom;
+using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
@@ -44,11 +45,16 @@ namespace Constructor.ViewModels
 
         internal Product Product { get; }
 
-        public ProductModel(Product product, IPalindromContext context) : base(context)
+        public ProductModel(Product product, IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
         {
             Product = product;
-            var moduleModels = product.Modules.Select(m => new ModuleModel(m, Context));
-            Modules = new List<ModuleModel>(moduleModels);
+            Modules = transactionFactory.Read(() =>
+            {
+                var moduleModels = product.Modules
+                    .AsEnumerable()
+                    .Select(m => new ModuleModel(m, Context));
+                return new List<ModuleModel>(moduleModels);
+            });
         }
     }
 }

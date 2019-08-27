@@ -1,6 +1,6 @@
 ﻿using Constructor.Database;
-using Starcounter.Nova;
 using Starcounter.Palindrom;
+using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
@@ -8,6 +8,7 @@ namespace Constructor.ViewModels
     public class ForkBranchDialogModel : TransientViewModel
     {
         private bool isVisible;
+        private string name;
 
         public bool IsVisible
         {
@@ -15,18 +16,32 @@ namespace Constructor.ViewModels
             set
             {
                 if (value)
-                    Name = $"{ParentPage?.Repository?.CurrentBranch?.Name} - fork";
+                {
+                    Name = TransactionFactory.Read(() => $"{ParentPage?.Repository?.CurrentBranch?.Name} - fork");
+                    this.MemberChanged(m => m.Name);
+                }
                 isVisible = value;
+                this.MemberChanged(m => m.IsVisible);
             }
         }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get => name;
+            set
+            {
+                name = value;
+                this.MemberChanged(m => m.Name);
+            }
+        }
 
         private ProductPage ParentPage { get; }
+        private ITransactionFactory TransactionFactory { get; }
 
-        public ForkBranchDialogModel(ProductPage parentPage, IPalindromContext context) : base(context)
+        public ForkBranchDialogModel(ProductPage parentPage, IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
         {
             ParentPage = parentPage;
+            TransactionFactory = transactionFactory;
         }
 
         public void Submit()
@@ -34,7 +49,8 @@ namespace Constructor.ViewModels
             IsVisible = false;
             Branch branch = null;
             ProductPage parent = ParentPage;
-            Db.Transact(() =>
+
+            TransactionFactory.Transact(() =>
             {
                 if (!parent.Repository.CurrentCommit.IsClosed)
                     return;
@@ -45,7 +61,9 @@ namespace Constructor.ViewModels
                 branch = Branch.Create(name, current);
                 parent.SelectBranch(branch);
             });
-            parent.Branches.Add(new BranchModel(branch, ParentPage, Context));
+
+            var branchModel = new BranchModel(branch, ParentPage, Context, TransactionFactory);
+            parent.Branches.Add(branchModel);
             parent.AddedToCollection(p => p.Branches);
         }
 

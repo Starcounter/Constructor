@@ -21,6 +21,6 @@ namespace Constructor.ViewModels
             ObjectNoStr = Db.GetOid(commit).ToString();
         }
 
-        public void Select() => Db.Transact(() => ParentPage.SelectCommit(Commit));
+        public void Select() => ParentPage.SelectCommit(Commit);
     }
 }

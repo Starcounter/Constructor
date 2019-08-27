@@ -16,14 +16,14 @@ namespace Constructor.Database
 
         public int Quantity
         {
-            get => Property.GetIntValue(Repository.CurrentCommit, this) ?? 0;
-            set => Property.SetIntValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetIntValue(this) ?? 0;
+            set => PropertyCrud.SetIntValue(this, value);
         }
 
         public int Price
         {
-            get => Property.GetIntValue(Repository.CurrentCommit, this) ?? 0;
-            set => Property.SetIntValue(Repository.CurrentCommit, this, value);
+            get => PropertyCrud.GetIntValue(this) ?? 0;
+            set => PropertyCrud.SetIntValue(this, value);
         }
 
         /// <summary>

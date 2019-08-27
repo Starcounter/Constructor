@@ -1,6 +1,7 @@
 ﻿using Constructor.Database;
 using Starcounter.Nova;
 using Starcounter.Palindrom;
+using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
@@ -13,14 +14,16 @@ namespace Constructor.ViewModels
 
         private Branch Branch { get; }
         private ProductPage ParentPage { get; }
+        private ITransactionFactory TransactionFactory { get; }
 
-        public BranchModel(Branch branch, ProductPage parentPage, IPalindromContext context) : base(context)
+        public BranchModel(Branch branch, ProductPage parentPage, IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
         {
             Branch = branch;
             ParentPage = parentPage;
             ObjectNoStr = Db.GetOid(branch).ToString();
+            TransactionFactory = transactionFactory;
         }
 
-        public void Select() => Db.Transact(() => ParentPage.SelectBranch(Branch));
+        public void Select() => TransactionFactory.Transact(() => ParentPage.SelectBranch(Branch));
     }
 }

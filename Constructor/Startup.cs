@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Constructor.Database;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Starcounter.Nova.Extensions.DependencyInjection;
@@ -18,14 +19,18 @@ namespace Constructor
         {
             services.AddResponseCaching();
             services.AddStarcounter("Database=./.database/Constructor");
+            services.AddSingleton<PropertyCrudManager>();
             services.AddMvc(o => o.EnableEndpointRouting = false);
             services.AddPalindromDatabaseTransactions();
             services.AddPalindrom();
         }
 
-        public void Configure(IApplicationBuilder app) => app
-            .UseDeveloperExceptionPage()
-            .UsePalindrom()
-            .UseMvcWithDefaultRoute();
+        public void Configure(IApplicationBuilder app)
+        {
+            app.UseDeveloperExceptionPage();
+            app.UsePalindrom();
+            app.UseMvcWithDefaultRoute();
+            Item.PropertyCrud = app.ApplicationServices.GetService<PropertyCrudManager>();
+        }
     }
 }
