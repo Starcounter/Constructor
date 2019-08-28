@@ -15,6 +15,10 @@ namespace Constructor.Controllers
         public ConstructorController(IPalindromContext palindromContext, IStarcounterInteractionContext interactionContext)
         {
             PalindromContext = palindromContext;
+
+            // This way we tell the Palindrom context to use the Starcounter interaction context.
+            // We can also set the default interaction context (see Startup), in which case we 
+            // don't need this.
             PalindromContext.InteractionContext = interactionContext;
         }
 
