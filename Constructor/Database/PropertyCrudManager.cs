@@ -8,16 +8,16 @@ namespace Constructor.Database
 {
     internal class PropertyCrudManager
     {
-        private ITransactionFactory TransactionFactory { get; }
+        private IStarcounterInteractionContext InteractionContext { get; }
 
-        public PropertyCrudManager(ITransactionFactory transactionFactory)
+        public PropertyCrudManager(IStarcounterInteractionContext interactionContext)
         {
-            TransactionFactory = transactionFactory;
+            InteractionContext = interactionContext;
         }
 
         public string GetStringValue(Item item, [CallerMemberName] string propertyName = "")
         {
-            return TransactionFactory.Read(() =>
+            return InteractionContext.Run(() =>
             {
                 Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
                 return property?.StringValue;
@@ -26,7 +26,7 @@ namespace Constructor.Database
 
         public int? GetIntValue(Item item, [CallerMemberName] string propertyName = "")
         {
-            return TransactionFactory.Read(() =>
+            return InteractionContext.Run(() =>
             {
                 Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
                 return property?.IntValue;
@@ -35,7 +35,7 @@ namespace Constructor.Database
 
         public bool? GetBoolValue(Item item, [CallerMemberName] string propertyName = "")
         {
-            return TransactionFactory.Read(() =>
+            return InteractionContext.Run(() =>
             {
                 Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
                 return property?.BoolValue;
@@ -45,7 +45,7 @@ namespace Constructor.Database
 
         public void SetStringValue(Item item, string value, [CallerMemberName] string propertyName = "")
         {
-            TransactionFactory.Transact(() =>
+            InteractionContext.Run(() =>
             {
                 Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
                 property.StringValue = value;
@@ -54,7 +54,7 @@ namespace Constructor.Database
 
         public void SetIntValue(Item item, int? value, [CallerMemberName] string propertyName = "")
         {
-            TransactionFactory.Transact(() =>
+            InteractionContext.Run(() =>
             {
                 Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
                 property.IntValue = value;
@@ -63,7 +63,7 @@ namespace Constructor.Database
 
         public void SetBoolValue(Item item, bool? value, [CallerMemberName] string propertyName = "")
         {
-            TransactionFactory.Transact(() =>
+            InteractionContext.Run(() =>
             {
                 Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
                 property.BoolValue = value;

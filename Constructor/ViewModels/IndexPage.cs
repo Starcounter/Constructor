@@ -4,52 +4,48 @@ using Constructor.Database;
 using Starcounter.Linq;
 using Starcounter.Nova;
 using Starcounter.Palindrom;
-using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
 {
     public class IndexPage : TransientViewModel
     {
-        private ITransactionFactory TransactionFactory { get; }
-
         public List<IndexProductModel> Products { get; }
         public IndexNewProductModel NewProduct { get; }
         public string Html => "/Constructor/IndexPage.html";
 
-        public IndexPage(IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
+        public IndexPage(IPalindromContext context) : base(context)
         {
-            TransactionFactory = transactionFactory;
             Products = new List<IndexProductModel>();
-            NewProduct = new IndexNewProductModel(this, Context, TransactionFactory);
+            NewProduct = new IndexNewProductModel(this, Context);
             RefreshProducts();
         }
 
         public void CreateDefaultBicycleProduct()
         {
-            var data = new TestData(TransactionFactory);
+            var data = new TestData();
             data.CreateDefaultBicycleProduct();
             RefreshProducts();
         }
 
         public void CreateDefaultComputerProduct()
         {
-            var data = new TestData(TransactionFactory);
+            var data = new TestData();
             data.CreateDefaultComputerProduct();
             RefreshProducts();
         }
 
-        internal void RefreshProducts() => TransactionFactory.Read(() =>
+        internal void RefreshProducts()
         {
             var newItems = DbLinq
                 .Objects<Product>()
                 .OrderBy(x => x.Name)
                 .ThenBy(x => Db.GetOid(x))
                 .AsEnumerable()
-                .Select(p => new IndexProductModel(p, this, Context, TransactionFactory));
+                .Select(p => new IndexProductModel(p, this, Context));
             Products.Clear();
             Products.AddRange(newItems);
             this.MemberChanged(i => i.Products);
-        });
+        }
     }
 }

@@ -21,7 +21,7 @@ namespace Constructor
             services.AddStarcounter("Database=./.database/Constructor");
             services.AddSingleton<PropertyCrudManager>();
             services.AddMvc(o => o.EnableEndpointRouting = false);
-            services.AddPalindromDatabaseTransactions();
+            services.AddDatabaseInteractionContexts();
             services.AddPalindrom();
         }
 

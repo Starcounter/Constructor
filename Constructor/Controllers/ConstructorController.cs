@@ -11,25 +11,24 @@ namespace Constructor.Controllers
     public class ConstructorController : Controller
     {
         private IPalindromContext PalindromContext { get; }
-        private ITransactionFactory TransactionFactory { get; }
 
-        public ConstructorController(IPalindromContext palindromContext, ITransactionFactory transactionFactory)
+        public ConstructorController(IPalindromContext palindromContext, IStarcounterInteractionContext interactionContext)
         {
             PalindromContext = palindromContext;
-            TransactionFactory = transactionFactory;
+            PalindromContext.InteractionContext = interactionContext;
         }
 
         [Palindrom, Route("/constructor")]
         public PalindromResult IndexPage()
         {
-            return new IndexPage(PalindromContext, TransactionFactory);
+            return new IndexPage(PalindromContext);
         }
 
         [Palindrom, Route("/constructor/product/{id}")]
         public PalindromResult ProductPage(ulong id)
         {
-            var product = TransactionFactory.Read(() => Db.Get<Product>(id));
-            return new ProductPage(product, PalindromContext, TransactionFactory);
+            var product = Db.Get<Product>(id);
+            return new ProductPage(product, PalindromContext);
         }
     }
 }

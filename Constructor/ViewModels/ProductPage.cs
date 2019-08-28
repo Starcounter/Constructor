@@ -4,7 +4,6 @@ using System.Linq;
 using Constructor.Database;
 using Starcounter.Nova;
 using Starcounter.Palindrom;
-using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
@@ -12,13 +11,14 @@ namespace Constructor.ViewModels
     public class ProductPage : TransientViewModel
     {
         private string closeCommitName;
-        private ITransactionFactory TransactionFactory { get; }
 
         public List<BranchModel> Branches { get; }
         public List<CommitModel> Commits { get; }
         public ProductModel Product { get; }
-        public bool IsEditing => TransactionFactory.Read(() => !Repository.CurrentCommit.IsClosed);
-        public bool IsHistory => TransactionFactory.Read(() => !Commits.Last().Commit.Equals(Repository.CurrentCommit));
+
+        public bool IsEditing => !Repository.CurrentCommit.IsClosed;
+        public bool IsHistory => !Commits.Last().Commit.Equals(Repository.CurrentCommit);
+
         public ForkBranchDialogModel ForkBranchDialog { get; }
         public string Html => "/Constructor/ProductPage.html";
 
@@ -34,56 +34,51 @@ namespace Constructor.ViewModels
 
         internal Repository Repository { get; }
 
-        public ProductPage(Product product, IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
+        public ProductPage(Product product, IPalindromContext context) : base(context)
         {
-            TransactionFactory = transactionFactory;
             Branches = new List<BranchModel>();
             Commits = new List<CommitModel>();
-            Product = new ProductModel(product, Context, TransactionFactory);
-            Repository = TransactionFactory.Read(() => product.Repository)
-                         ?? throw new ArgumentNullException(nameof(product.Repository));
+            Product = new ProductModel(product, Context);
+            Repository = product.Repository ?? throw new ArgumentNullException(nameof(product.Repository));
 
-            TransactionFactory.Transact(() =>
-            {
-                var branches = Repository.Branches
-                    .OrderBy(b => Db.GetOid(b.ParentBranch))
-                    .ThenBy(b => Db.GetOid(b))
-                    .ToList();
-                var branch = Repository.CurrentBranch ?? branches.Single(x => x.ParentBranch == null);
-                ReplaceBranches(branches);
-                SelectBranch(branch);
-            });
+            var branches = Repository.Branches
+                .OrderBy(b => Db.GetOid(b.ParentBranch))
+                .ThenBy(b => Db.GetOid(b))
+                .ToList();
+            var branch = Repository.CurrentBranch ?? branches.Single(x => x.ParentBranch == null);
+            ReplaceBranches(branches);
+            SelectBranch(branch);
 
-            ForkBranchDialog = new ForkBranchDialogModel(this, Context, TransactionFactory);
+            ForkBranchDialog = new ForkBranchDialogModel(this, Context);
         }
 
         public void InsertModule()
         {
             if (Repository.CurrentCommit.IsClosed)
                 return;
-            TransactionFactory.Transact(() => Module.Create(Product.Product));
+            Module.Create(Product.Product);
         }
 
-        public void CreateCommit() => TransactionFactory.Transact(() =>
+        public void CreateCommit()
         {
             Branch branch = Repository.CurrentBranch;
             Commit commit = branch.StartEdit();
-            var commits = TransactionFactory.Read(() => GetCommits(branch));
+            var commits = GetCommits(branch);
             ReplaceCommits(commits);
             CloseCommitName = commit.Name;
-        });
+        }
 
         public void CloseCommit()
         {
-            TransactionFactory.Transact(() => Repository.CurrentBranch.FinishEdit(CloseCommitName));
-            var commits = TransactionFactory.Read(() => GetCommits(Repository.CurrentBranch));
+            Repository.CurrentBranch.FinishEdit(CloseCommitName);
+            var commits = GetCommits(Repository.CurrentBranch);
             ReplaceCommits(commits);
         }
 
         public void CancelCommit()
         {
-            TransactionFactory.Transact(() => Repository.CurrentBranch.CancelEdit());
-            var commits = TransactionFactory.Read(() => GetCommits(Repository.CurrentBranch));
+            Repository.CurrentBranch.CancelEdit();
+            var commits = GetCommits(Repository.CurrentBranch);
             ReplaceCommits(commits);
         }
 
@@ -95,8 +90,8 @@ namespace Constructor.ViewModels
         private void ReplaceBranches(IEnumerable<Branch> branches)
         {
             Branches.Clear();
-            var convertedBranches = branches.Select(b => new BranchModel(b, this, Context, TransactionFactory));
-            TransactionFactory.Transact(() => Branches.AddRange(convertedBranches));
+            var convertedBranches = branches.Select(b => new BranchModel(b, this, Context));
+            Branches.AddRange(convertedBranches);
             this.MemberChanged(p => p.Branches);
         }
 
@@ -104,7 +99,7 @@ namespace Constructor.ViewModels
         {
             Commits.Clear();
             var newCommits = commits.Select(c => new CommitModel(c, this, Context));
-            TransactionFactory.Transact(() => Commits.AddRange(newCommits));
+            Commits.AddRange(newCommits);
             this.MemberChanged(p => p.Commits);
         }
 
@@ -115,7 +110,7 @@ namespace Constructor.ViewModels
 
         internal void SelectBranch(Branch branch)
         {
-            var commits = TransactionFactory.Read(() => GetCommits(branch).ToList());
+            var commits = GetCommits(branch).ToList();
             var commit = commits[0];
             ReplaceCommits(commits);
             Repository.CurrentBranch = branch;
@@ -125,7 +120,7 @@ namespace Constructor.ViewModels
         internal void SelectCommit(Commit commit)
         {
             if (IsEditing) return;
-            TransactionFactory.Transact(() => Repository.CurrentCommit = commit);
+            Repository.CurrentCommit = commit;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Constructor.Database;
 using Starcounter.Palindrom;
-using Starcounter.Palindrom.Database;
 using Starcounter.Palindrom.Transient;
 
 namespace Constructor.ViewModels
@@ -17,7 +16,7 @@ namespace Constructor.ViewModels
             {
                 if (value)
                 {
-                    Name = TransactionFactory.Read(() => $"{ParentPage?.Repository?.CurrentBranch?.Name} - fork");
+                    Name = $"{ParentPage?.Repository?.CurrentBranch?.Name} - fork";
                     this.MemberChanged(m => m.Name);
                 }
                 isVisible = value;
@@ -36,35 +35,28 @@ namespace Constructor.ViewModels
         }
 
         private ProductPage ParentPage { get; }
-        private ITransactionFactory TransactionFactory { get; }
 
-        public ForkBranchDialogModel(ProductPage parentPage, IPalindromContext context, ITransactionFactory transactionFactory) : base(context)
+        public ForkBranchDialogModel(ProductPage parentPage, IPalindromContext context) : base(context)
         {
             ParentPage = parentPage;
-            TransactionFactory = transactionFactory;
         }
 
         public void Submit()
         {
             IsVisible = false;
-            Branch branch = null;
-            ProductPage parent = ParentPage;
 
-            TransactionFactory.Transact(() =>
-            {
-                if (!parent.Repository.CurrentCommit.IsClosed)
-                    return;
-                Branch current = parent.Repository.CurrentBranch;
-                var trimmedName = Name.Trim();
-                if (string.IsNullOrEmpty(trimmedName))
-                    trimmedName = $"{current.Name}-fork";
-                branch = Branch.Create(trimmedName, current);
-                parent.SelectBranch(branch);
-            });
+            if (!ParentPage.Repository.CurrentCommit.IsClosed)
+                return;
+            Branch current = ParentPage.Repository.CurrentBranch;
+            var trimmedName = Name.Trim();
+            if (string.IsNullOrEmpty(trimmedName))
+                trimmedName = $"{current.Name}-fork";
+            var branch = Branch.Create(trimmedName, current);
+            ParentPage.SelectBranch(branch);
 
-            var branchModel = new BranchModel(branch, ParentPage, Context, TransactionFactory);
-            parent.Branches.Add(branchModel);
-            parent.AddedToCollection(p => p.Branches);
+            var branchModel = new BranchModel(branch, ParentPage, Context);
+            ParentPage.Branches.Add(branchModel);
+            ParentPage.AddedToCollection(p => p.Branches);
         }
 
         public void Cancel() => IsVisible = false;
