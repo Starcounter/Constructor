@@ -71,13 +71,21 @@ namespace Constructor.ViewModels
 
         internal bool IsDeleted => Module?.IsDeleted != false;
 
+        private ProductModel ProductModel { get; }
         private Module Module { get; }
 
-        public ModuleModel(Module module, IPalindromContext context) : base(context)
+        public ModuleModel(Module module, ProductModel parent, IPalindromContext context) : base(context)
         {
             Module = module;
+            ProductModel = parent;
         }
 
-        public void Delete() => Module.IsDeleted = true;
+        public void Delete()
+        {
+            var index = ProductModel.Modules.IndexOf(this);
+            ProductModel.Modules.RemoveAt(index);
+            ProductModel.RemovedFromCollection(p => p.Modules, index);
+            Module.IsDeleted = true;
+        }
     }
 }

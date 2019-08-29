@@ -59,7 +59,8 @@ namespace Constructor.ViewModels
         {
             if (Repository.CurrentCommit.IsClosed)
                 return;
-            Module.Create(Product.Product);
+            var createdModule = Module.Create(Product.Product);
+            Product.AddModule(createdModule);
         }
 
         public void CreateCommit()
@@ -125,7 +126,7 @@ namespace Constructor.ViewModels
             if (IsEditing) return;
             Repository.CurrentCommit = commit;
             this.MemberChanged(x => x.Commits);
-            this.Product.MemberChanged(x => x.Modules);
+            Product.ReloadModules();
         }
     }
 }

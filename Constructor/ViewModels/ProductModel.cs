@@ -38,15 +38,22 @@ namespace Constructor.ViewModels
             }
         }
 
-        private readonly List<ModuleModel> _modules;
+        public List<ModuleModel> Modules { get; }
 
-        public IEnumerable<ModuleModel> Modules
+        internal void ReloadModules()
         {
-            get
-            {
-                _modules.RemoveAll(m => m.IsDeleted);
-                return _modules;
-            }
+            var moduleModels = Product.Modules
+                .AsEnumerable()
+                .Select(m => new ModuleModel(m, this, Context));
+            Modules.Clear();
+            Modules.AddRange(moduleModels);
+            this.MemberChanged(p => p.Modules);
+        }
+
+        internal void AddModule(Module module)
+        {
+            Modules.Add(new ModuleModel(module, this, Context));
+            this.AddedToCollection(p => p.Modules);
         }
 
         public long TotalAmount => Modules.Sum(x => x.TotalAmount);
@@ -56,10 +63,8 @@ namespace Constructor.ViewModels
         public ProductModel(Product product, IPalindromContext context) : base(context)
         {
             Product = product;
-            var moduleModels = product.Modules
-                .AsEnumerable()
-                .Select(m => new ModuleModel(m, Context));
-            _modules = new List<ModuleModel>(moduleModels);
+            Modules = new List<ModuleModel>();
+            ReloadModules();
         }
     }
 }
