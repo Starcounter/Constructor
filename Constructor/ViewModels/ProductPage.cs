@@ -87,7 +87,7 @@ namespace Constructor.ViewModels
 
         public void ForkBranch()
         {
-            // do nothing?
+            throw new NotImplementedException();
         }
 
         private void ReplaceBranches(IEnumerable<Branch> branches)
@@ -124,6 +124,8 @@ namespace Constructor.ViewModels
         {
             if (IsEditing) return;
             Repository.CurrentCommit = commit;
+            this.MemberChanged(x => x.Commits);
+            this.Product.MemberChanged(x => x.Modules);
         }
     }
 }
