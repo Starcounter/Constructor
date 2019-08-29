@@ -38,7 +38,16 @@ namespace Constructor.ViewModels
             }
         }
 
-        public List<ModuleModel> Modules { get; }
+        private readonly List<ModuleModel> _modules;
+
+        public IEnumerable<ModuleModel> Modules
+        {
+            get
+            {
+                _modules.RemoveAll(m => m.IsDeleted);
+                return _modules;
+            }
+        }
 
         public long TotalAmount => Modules.Sum(x => x.TotalAmount);
 
@@ -50,7 +59,7 @@ namespace Constructor.ViewModels
             var moduleModels = product.Modules
                 .AsEnumerable()
                 .Select(m => new ModuleModel(m, Context));
-            Modules = new List<ModuleModel>(moduleModels);
+            _modules = new List<ModuleModel>(moduleModels);
         }
     }
 }

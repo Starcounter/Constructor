@@ -69,6 +69,8 @@ namespace Constructor.ViewModels
             }
         }
 
+        internal bool IsDeleted => Module?.IsDeleted != false;
+
         private Module Module { get; }
 
         public ModuleModel(Module module, IPalindromContext context) : base(context)
