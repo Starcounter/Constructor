@@ -16,7 +16,10 @@ namespace Constructor.ViewModels
         public List<CommitModel> Commits { get; }
         public ProductModel Product { get; }
 
+        [Member(unmonitored: true)]
         public bool IsEditing => !Repository.CurrentCommit.IsClosed;
+
+        [Member(unmonitored: true)]
         public bool IsHistory => !Commits.Last().Commit.Equals(Repository.CurrentCommit);
 
         public ForkBranchDialogModel ForkBranchDialog { get; }
