@@ -1,0 +1,289 @@
+<!-- uni-date-picker @version: 0.10.0 @license: MIT -->
+<link rel="import" href="../../../polymer/lib/utils/flattened-nodes-observer.html">
+<link rel="import" href="../../../vaadin-date-picker/vaadin-date-picker.html">
+<script>
+(function(){
+    /**
+     * Copies property from one object to the other, if different.
+     * `to` receives lowercase names
+     * @param {Object} from
+     * @param {Object} to
+     * @param {String} name
+     */
+    function copyProperty(from, to, name){
+        const toName = name.toLowerCase();
+        if(from[name] !== to[toName]){
+            to[toName] = from[name];
+        }
+    }
+    /**
+     * Copy native, boolean semantic attribute to vaadin API property, if different
+     * @param  {HTMLElement} from    element to copy attribute from
+     * @param  {HTMLElement} to      element to copy prperty to
+     * @param  {String} name         attribute & property name
+     * @param  {String} oldVal       old value
+     */
+    function copyBooleanAttrToProp(from, to, name, oldVal){
+        let newVal = from.getAttribute(name);
+        if(oldVal !== newVal){
+            to[name] = from.hasAttribute(name);
+        }
+    }
+    /**
+     * Copy native, string semantic attribute to vaadin API property, if different
+     * @param  {HTMLElement} from    element to copy attribute from
+     * @param  {HTMLElement} to      element to copy prperty to
+     * @param  {String} name         attribute & property name
+     * @param  {String} oldVal       old value
+     */
+    function copyStringAttrToProp(from, to, name, oldVal){
+        let newVal = from.getAttribute(name);
+        if(oldVal !== newVal){
+            to[name] = newVal;
+        }
+    }
+
+    customElements.define('uni-date-picker', class extends HTMLElement {
+        /**
+         * Static list of native boolean attributes forwarded to Vaadin API
+         */
+        static get clonedBooleanAPI(){
+            return [
+                'autofocus',
+                'disabled',
+                // 'invalid',
+                // 'opened',
+                'readonly',
+                'required',
+                // 'showWeekNumbers'
+            ];
+        }
+        /**
+         * Static list of native boolean properties forwarded to Vaadin API
+         */
+        static get clonedBooleanPropAPI(){
+            return [
+                'autofocus',
+                'disabled',
+                // 'invalid',
+                // 'opened',
+                'readOnly',
+                'required',
+                // 'showWeekNumbers'
+            ];
+        }
+        /**
+         * Static list of native string attributes forwarded to Vaadin API
+         */
+        static get clonedStringAPI(){
+            return [
+                // 'errorMessage',
+                // 'i18n',
+                // Purposefully blocked as considered anti-pattern.
+                // Use value attribute (opesed to property) for that
+                //     'initialPosition',
+                // We try to embrace native HTML Elements composition
+                // over reimplementing it with attributes
+                // Use regular <code>&lt;label&gt;</code> element to provide
+                // a label to the <code>&lt;input type="date"&gt;</code>.
+                // We will provide `<uni-form-item>` that will let you achive
+                // uni- custom look and feel with wrapped native `<label>` element.
+                // 'label',
+                'max',
+                'min',
+                'name',
+                'placeholder',
+                'value'
+            ];
+        }
+        /*
+         Fires when an instance of the element is created
+         listen to slotChange to observe input element
+         */
+        constructor() {
+            super();
+            this.attachShadow({
+                mode: 'open'
+            });
+            this.shadowRoot.innerHTML = `<style>
+    :host{display: inline-flex;}
+    /* Workaround https://github.com/vaadin/vaadin-date-picker/issues/546#issuecomment-385168535 */
+    :host > vaadin-date-picker{flex: 1; display: inline-flex;}
+    /* For polyfilled browsers */
+    uni-date-picker{display: inline-flex;}
+    uni-date-picker > vaadin-date-picker{flex: 1; display: inline-flex;}
+</style>`;
+            this._inputChangedValue = this._inputChangedValue.bind(this);
+            this.slotChangedCallback = this.slotChangedCallback.bind(this);
+
+            this.slotElement = document.createElement('slot');
+            // Due to lack of interop for `slotchange` in Safari https://bugs.webkit.org/show_bug.cgi?id=190204
+            // We will use Polymer.FlattenedNodesObserver with it's scheduling to workaround it.
+            // this.slotElement.addEventListener('slotchange', this.slotChangedCallback);
+            this._observer = new Polymer.FlattenedNodesObserver(this.slotElement, this.slotChangedCallback);
+
+            this.vaadinElement = document.createElement('vaadin-date-picker');
+            this.vaadinElement.disabled = true;
+            // Listen to vaading changing the value
+            this.vaadinElement.addEventListener('value-changed', (ev)=>{
+                if(this.input && !this._copyingInput){
+                    this._copyingVaadin = true;
+                    // dispatch the change to input element
+                    this.input.value = ev.detail.value;
+                    this.input.dispatchEvent(new Event('change', ev));
+
+                    this._copyingVaadin = false;
+                    return false;
+                }
+            });
+            // Hardcode International date format
+            // A function to format given `Object` as
+            // date string. Object is in the format `{ day: ..., month: ..., year: ... }`
+            this.vaadinElement.i18n.formatDate = d => {
+                return d.year + '-' + ('0' + (d.month + 1)).slice(-2) + '-' + ('0' + d.day).slice(-2);
+            };
+
+            this.vaadinElement.i18n.parseDate = text => {
+                // Parses a string in 'MM/DD/YY', 'MM/DD' or 'DD' -format to
+                // an `Object` in the format `{ day: ..., month: ..., year: ... }`.
+                // Parsing with RegExp to ensure correct format
+                var parts = /^(\d{4}|[-+]\d{6})-(\d{2})-(\d{2})$/.exec(text);
+                if (!parts) {
+                  return;
+                }
+
+                return {
+                    year: Number(parts[1]),
+                    month: Number(parts[2]) - 1,
+                    day: Number(parts[3])
+                };
+            };
+            // Hardcode Monday as the first day of a week
+            this.vaadinElement.i18n.firstDayOfWeek = 1;
+
+
+            // Hide distributed content, so we could observe it without showing it
+            const hiddenBox = document.createElement('div');
+            hiddenBox.style.display = 'none';
+            hiddenBox.appendChild(this.slotElement);
+            this.shadowRoot.appendChild(hiddenBox);
+            this.shadowRoot.appendChild(this.vaadinElement);
+        }
+        /**
+         Assign new input if changed
+        */
+        slotChangedCallback(){
+            // Use assignedNodes whtn polyfill does not support assignedElements -
+            // even though we are interested in elements only.
+            const flattenedChildren = this.slotElement.assignedElements ?
+                this.slotElement.assignedElements({flatten: true}) :
+                this.slotElement.assignedNodes({flatten: true}).filter(n=>n.nodeType === Node.ELEMENT_NODE);
+            const input = flattenedChildren.find(e=>e.matches('input[type="date"]'));
+
+            if(this.input !== input){
+                this._unobserveInput();
+                this.input = input;
+                // if there is anything to observe/copy from
+                if(input){
+                    this._observeInput();
+                    // Copy all native, semantics to vaadin API
+                    this._copyingInput = true;
+                    this.constructor.clonedBooleanPropAPI.forEach(property => copyProperty(this.input, this.vaadinElement, property));
+                    this.constructor.clonedStringAPI.forEach(property => copyProperty(this.input, this.vaadinElement, property));
+                    this._copyingInput = false;
+                } else {
+                    this._copyingInput = true;
+                    this.vaadinElement.disabled = true;
+                    this._copyingInput = false;
+                }
+            }
+        }
+        /*
+         Disconnect all mutation observers
+        */
+        disconnectedCallback() {
+            this._unobserveInput();
+        }
+        /**
+         * Observe any kind of changes that may happen to wrapped input element: attribute & property changes, `change` event
+         */
+        _observeInput(){
+            // Observe **attribute** changes
+            // For initial value or changes done through:
+            // declarative markup, for Polymers `$={{` binding,
+            // VanillaJS/non-polymer data binding, a11y tools, Browser Dev Tools, browser plugins
+            // Please note, such change is reflected in property change, but does not call setter, nor trigger event.
+            const input = this.input;
+            this._inputObserver = new MutationObserver((mutationsList)=>{
+                this._copyingInput = true;
+                for(var mutation of mutationsList) {
+                    let name = mutation.attributeName;
+                    if(this.constructor.clonedBooleanAPI.includes(name)){
+                        copyBooleanAttrToProp(input, this.vaadinElement, name.toLowerCase(), mutation.oldValue);
+                    } else if(this.constructor.clonedStringAPI.includes(name)){
+                        copyStringAttrToProp(input, this.vaadinElement, name, mutation.oldValue);
+                    }
+                }
+                this._copyingInput = false;
+            });
+            this._inputObserver.observe(input, {
+                attributes: true,
+                attributeOldValue: true
+            });
+            // Listen to user changes
+            // Whenever user clicks, or interact with the element in the way that changes the value
+            // event is triggered.
+            // Please note, that according to spec this SHOULD NOT change the attribute.
+            input.addEventListener('change', this._inputChangedValue);
+
+            // Observe value **property** changes
+            // Polymer's `={{` binding,
+            // VanillaJS/non-polymer data binding, through property, a11y tools, Browser Dev Tools, browser plugins
+            // Please note, that according to spec this SHOULD NOT change the attribute nor trigger event.
+            // For more on content attributes, IDL attributes (DOM interfaces) and events
+            // see https://www.w3.org/TR/html5/sec-forms.html#the-input-element
+            const uniElement = this;
+            const previousValueDesc = Object.getOwnPropertyDescriptor(input, 'value') || Object.getOwnPropertyDescriptor(input.constructor.prototype, 'value');
+            this._previousValueDesc = previousValueDesc;
+            Object.defineProperty(input,'value',{
+                set(val){
+                    if(!uniElement._copyingVaadin && uniElement.vaadinElement.value !== val){
+                        uniElement._copyingInput = true;
+                        uniElement.vaadinElement.value = val;
+                        uniElement._copyingInput = false;
+                    }
+                    previousValueDesc.set.call(this, val);
+                },
+                get(){
+                    return previousValueDesc.get.call(this);
+                },
+                configurable: true
+            });
+
+
+        }
+        /**
+         * Unobserve change event, attribute and property changes.
+         * @private
+         */
+        _unobserveInput(){
+            if(this.input){
+                Object.defineProperty(this.input,'value',this._previousValueDesc);
+                this.input.removeEventListener('change', this._inputChangedValue);
+            }
+            this._inputObserver && this._inputObserver.disconnect();
+        }
+        /**
+         * Copy input value to vaadin element if not being set by it already
+         * @private
+         */
+        _inputChangedValue(){
+            if(!this._copyingVaadin && this.vaadinElement.value !== this.input.value){
+                this._copyingInput = true;
+                this.vaadinElement.value = this.input.value;
+                this._copyingInput = false;
+            }
+        }
+    });
+}());
+</script>

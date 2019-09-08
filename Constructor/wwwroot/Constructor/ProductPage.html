@@ -14,22 +14,22 @@
                     <ul class="branch-list">
                         <template is="dom-repeat" items="[[model.Branches]]">
                             <li>
-                                <button type="button" disabled="[[item.Select]]" onmouseup="++this.value;" value="{{item.Select::click}}" current$="[[item.IsCurrent]]">[[item.Name]]</button>
+                                <button type="button" disabled="[[item.SelectTrigger$]]" onmouseup="++this.value;" value="{{item.SelectTrigger$::click}}" current$="[[item.IsCurrent]]">[[item.Name]]</button>
                             </li>
                         </template>
                     </ul>
 
                     <template is="dom-if" if="[[!model.IsEditing]]">
-                        <button type="button" class="btn btn--flat" disabled="[[model.ForkBranchDialog.IsVisible]]" value="{{model.ForkBranchDialog.IsVisible::click}}" onmouseup="this.value = true;">Fork</button>
+                        <button type="button" class="btn btn--flat" disabled="[[model.ForkBranchDialog.IsVisible$]]" value="{{model.ForkBranchDialog.IsVisible$::click}}" onmouseup="this.value = true;">Fork</button>
                     </template>
                 </section>
                 <section class="properties">
                     <div class="module-item">
                         <div class="module-item__image">
-                            <template is="dom-if" if="[[model.Product.ImageUrl]]">
-                                <img src$="[[model.Product.ImageUrl]]" alt="[[module.Product.Name]]">
+                            <template is="dom-if" if="[[model.Product.ImageUrl$]]">
+                                <img src$="[[model.Product.ImageUrl$]]" alt="[[module.Product.Name$]]">
                             </template>
-                            <template is="dom-if" if="[[!model.Product.ImageUrl]]">
+                            <template is="dom-if" if="[[!model.Product.ImageUrl$]]">
                                 <div class="module-item__no-image">
                                     <img src="/Constructor/images/placeholder-270x270.png" alt="No Image Available" />
                                 </div>
@@ -38,23 +38,23 @@
 
                         <div class="module-item__name">
                             <div class="input">
-                                <input type="text" placeholder="Product name" value="{{model.Product.Name::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" maxlength="250" />
+                                <input type="text" placeholder="Product name" value="{{model.Product.Name$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" maxlength="250" />
                                 <p class="label">Product Name</p>
                             </div>
                             <template is="dom-if" if="[[model.IsEditing]]">
                                 <div class="input">
-                                    <input type="text" placeholder="Product image" value="{{model.Product.ImageUrl::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" maxlength="500" />
+                                    <input type="text" placeholder="Product image" value="{{model.Product.ImageUrl$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" maxlength="500" />
                                     <p class="label">Product Image</p>
                                 </div>
                             </template>
                             <div class="ui-controls">
                                 <template is="dom-if" if="[[!model.IsEditing]]">
-                                    <button type="button" class="btn btn__secondary btn__secondary--save" disabled="[[model.CreateCommit]]" value="{{model.CreateCommit::click}}" onmouseup="++this.value;">Edit product</button>
+                                    <button type="button" class="btn btn__secondary btn__secondary--save" disabled="[[model.CreateCommitTrigger$]]" value="{{model.CreateCommitTrigger$::click}}" onmouseup="++this.value;">Edit product</button>
                                 </template>
                                 <template is="dom-if" if="[[model.IsEditing]]">
-                                    <input type="text" readonly="[[model.CloseCommit]]" value="{{model.CloseCommitName::change}}" />
-                                    <button type="button" class="btn btn__primary btn__primary--save" disabled="[[model.CloseCommit]]" value="{{model.CloseCommit::click}}" onmouseup="++this.value;">Save</button>
-                                    <button type="button" class="btn btn__secondary" disabled="[[model.CancelCommit]]" value="{{model.CancelCommit::click}}" onmouseup="++this.value;">Cancel</button>
+                                    <input type="text" readonly="[[model.CloseCommitTrigger$]]" value="{{model.CloseCommitName$::change}}" />
+                                    <button type="button" class="btn btn__primary btn__primary--save" disabled="[[model.CloseCommitTrigger$]]" value="{{model.CloseCommitTrigger$::click}}" onmouseup="++this.value;">Save</button>
+                                    <button type="button" class="btn btn__secondary" disabled="[[model.CancelCommitTrigger$]]" value="{{model.CancelCommitTrigger$::click}}" onmouseup="++this.value;">Cancel</button>
                                 </template>
                             </div>
                         </div>
@@ -91,28 +91,28 @@
                                 <tr modified$="[[item.IsModified]]">
                                     <td>
                                         <template is="dom-if" if="[[!model.IsEditing]]">
-                                            <template is="dom-if" if="[[item.ImageUrl]]">
-                                                <img class="module-item__crud__img" src$="[[item.ImageUrl]]" alt="[[item.Name]]" />
+                                            <template is="dom-if" if="[[item.ImageUrl$]]">
+                                                <img class="module-item__crud__img" src$="[[item.ImageUrl$]]" alt="[[item.Name$]]" />
                                             </template>
-                                            <template is="dom-if" if="[[!item.ImageUrl]]">
+                                            <template is="dom-if" if="[[!item.ImageUrl$]]">
                                                 <img src="/Constructor/images/placeholder-30x30.png" alt="No Image Available" />
                                             </template>
                                         </template>
                                         <template is="dom-if" if="[[model.IsEditing]]">
-                                            <input class="crud" type="url" maxlength="1000" value="{{item.ImageUrl::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
+                                            <input class="crud" type="url" maxlength="1000" value="{{item.ImageUrl$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
                                         </template>
                                     </td>
                                     <td>
-                                        <input class="crud" type="text" maxlength="100" value="{{item.Name::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
+                                        <input class="crud" type="text" maxlength="100" value="{{item.Name$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
                                     </td>
                                     <td>
-                                        <input class="crud" type="text" maxlength="200" value="{{item.Description::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
+                                        <input class="crud" type="text" maxlength="200" value="{{item.Description$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
                                     </td>
                                     <td>
-                                        <input class="crud" type="number" min="0" max="10000" value="{{item.Quantity::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
+                                        <input class="crud" type="number" min="0" max="10000" value="{{item.Quantity$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
                                     </td>
                                     <td>
-                                        <input class="crud" type="number" min="0" max="10000" value="{{item.Price::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
+                                        <input class="crud" type="number" min="0" max="10000" value="{{item.Price$::change}}" readonly$="[[!model.IsEditing]]" data-editable$="[[model.IsEditing]]" />
                                     </td>
                                     <td>
                                         <input class="crud" type="number" readonly value="[[item.TotalAmount]]" />
@@ -121,8 +121,8 @@
                                         <td>
                                             <button class="btn btn__secondary btn__secondary--danger"
                                                     type="button"
-                                                    disabled="[[item.Delete]]"
-                                                    value="{{item.Delete::click}}"
+                                                    disabled="[[item.DeleteTrigger$]]"
+                                                    value="{{item.DeleteTrigger$::click}}"
                                                     onmouseup="++this.value;">
                                                 Delete
                                             </button>
@@ -146,8 +146,8 @@
                         <template is="dom-if" if="[[model.IsEditing]]">
                             <button class="btn btn__primary"
                                     type="button"
-                                    disabled="[[model.InsertModule]]"
-                                    value="{{model.InsertModule::click}}"
+                                    disabled="[[model.InsertModuleTrigger$]]"
+                                    value="{{model.InsertModuleTrigger$::click}}"
                                     onmouseup="++this.value;">
                                 Add module
                             </button>
@@ -169,9 +169,9 @@
                                     <template is="dom-if" if="[[!model.IsEditing]]">
                                         <button class="timeline__button"
                                                 type="button"
-                                                disabled="[[item.Select]]"
+                                                disabled="[[item.SelectTrigger$]]"
                                                 onmouseup="++this.value;"
-                                                value="{{item.Select::click}}"
+                                                value="{{item.SelectTrigger$::click}}"
                                                 current$="[[item.IsCurrent]]">
                                             [[item.Name]]
                                         </button>
@@ -189,7 +189,7 @@
                     </div>
                 </section>
             </section>
-            <template is="dom-if" if="[[model.ForkBranchDialog.IsVisible]]" restamp>
+            <template is="dom-if" if="[[model.ForkBranchDialog.IsVisible$]]" restamp>
                 <div class="overlay">
                     <div class="card">
                         <div class="card__title">
@@ -197,7 +197,7 @@
                         </div>
                         <div class="card__info">
                             <div class="input">
-                                <input type="text" placeholder="Fork branch name" value="{{model.ForkBranchDialog.Name::change}}" readonly$="[[model.IsEditing]]" />
+                                <input type="text" placeholder="Fork branch name" value="{{model.ForkBranchDialog.Name$::change}}" readonly$="[[model.IsEditing]]" />
                                 <script>
                                     {
                                         const script = document.currentScript;
@@ -209,8 +209,8 @@
                             </div>
                         </div>
                         <div class="card__ui">
-                            <button class="btn btn__primary" type="button" disabled="[[model.ForkBranchDialog.Submit]]" value="{{model.ForkBranchDialog.Submit::click}}" onmouseup="++this.value;">Submit</button>
-                            <button class="btn btn__secondary btn__secondary--flat" type="button" disabled="[[model.ForkBranchDialog.Cancel]]" value="{{model.ForkBranchDialog.Cancel::click}}" onmouseup="++this.value;">Cancel</button>
+                            <button class="btn btn__primary" type="button" disabled="[[model.ForkBranchDialog.SubmitTrigger$]]" value="{{model.ForkBranchDialog.SubmitTrigger$::click}}" onmouseup="++this.value;">Submit</button>
+                            <button class="btn btn__secondary btn__secondary--flat" type="button" disabled="[[model.ForkBranchDialog.CancelTrigger$]]" value="{{model.ForkBranchDialog.CancelTrigger$::click}}" onmouseup="++this.value;">Cancel</button>
                         </div>
                     </div>
                 </div>

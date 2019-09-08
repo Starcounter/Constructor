@@ -1,5 +1,5 @@
 <!--
-imported-template.html version: 3.2.0
+imported-template.html version: 3.4.0
 (c) 2013 Joachim Wester
 MIT license
 https://github.com/Juicy/imported-template
@@ -7,6 +7,16 @@ https://github.com/Juicy/imported-template
 <link rel="import" href="../juicy-html/juicy-html.html">
 <script>
     (function () {
+        // Needed to workaround https://github.com/webcomponents/webcomponentsjs/issues/1008
+        const isIE = /Trident/.test(navigator.userAgent) ||
+                    /Edge\/\d./i.test(navigator.userAgent);
+        const importDisableType = 'import-disable';
+        const stripDisabledType = function(template) {
+            const scope = template.content || template;
+            scope.querySelectorAll(`link[type="${importDisableType}"]`)
+                .forEach((link)=>{link.removeAttribute('type')});
+            scope.querySelectorAll('template').forEach(stripDisabledType);
+        };
         class ImportedTemplate extends customElements.get('juicy-html') {
             constructor(self) {
                 self = super(self);
@@ -54,8 +64,11 @@ https://github.com/Juicy/imported-template
                             singleTemplate = templates[nodeNo];
                             //d debugger // or innerHTML in this case
                             singleFragment = document.importNode(singleTemplate.content, true);
-                            // convert dynamic NodeList to regullar array
-                            nodes = Array.prototype.slice.call(singleFragment.childNodes);
+                            if(isIE){
+                                stripDisabledType(singleFragment);
+                            }
+                            // convert dynamic NodeList to regular array
+                            nodes = Array.from(singleFragment.childNodes);
                             if (singleTemplate.parentElement.tagName === "IMPORTED-TEMPLATE-SCOPE") {
                                 nodes.scope = singleTemplate.parentElement.getAttribute("scope");
                                 that.scopedNodes.push(nodes);
@@ -76,8 +89,8 @@ https://github.com/Juicy/imported-template
                     }
 
 
-                    // convert dynamic NodeList to regullar array
-                    that.stampedNodes = Array.prototype.slice.call(fragment.childNodes);
+                    // convert dynamic NodeList to regular array
+                    that.stampedNodes = Array.from(fragment.childNodes);
                     // dispatch event before stamping
                     that.dispatchEvent(new CustomEvent('stamping', {detail: fragment}));
                     // attach models
@@ -88,14 +101,13 @@ https://github.com/Juicy/imported-template
 
                     that.pending = false;
                 };
-                // guessed workaround for StarcounterSamples/Launcher#82, Polymer/polymer#554, http://crbug.com/389566
-                // TODO(tomalec): check if it's still required
-                setTimeout(function appendAsync() {
-                    document.head.appendChild(link);
-                    that.dispatchEvent(new CustomEvent("stamped", {
-                        detail: that.stampedNodes
-                    }));
-                });
+
+                // Start importing
+                document.head.appendChild(link);
+                that.dispatchEvent(new CustomEvent("stamped", {
+                    detail: that.stampedNodes
+                }));
+
                 return this;
             }
             /**
@@ -168,9 +180,10 @@ https://github.com/Juicy/imported-template
         ImportedTemplatePrototype.pending = false;
         ImportedTemplatePrototype.scopedNodes = null;
 
-
         // to fool Polymer into thinking `imported-template` is a polymer element thus forwarding notifications to it.
         ImportedTemplatePrototype.__dataHasAccessor = {partial: true, viewModel: true, model: true};
+        ImportedTemplatePrototype.__isPropertyEffectsClient = true;
+        
         // Polymer doesn't set props on its own components, rather, it calls this function
         ImportedTemplatePrototype._setPendingProperty = function (path, value) {
             this[path] = value;

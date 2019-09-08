@@ -1,0 +1,23 @@
+{
+  "Html": "/Constructor/IndexPage.html",
+  "Products": [
+    {
+      "ObjectNoStr": "",
+      "Name": "",
+      "ImageUrl": "",
+      "Repository": {
+        "BranchCountStr": "",
+        "CommitCountStr": ""
+      },
+      "DeleteTrigger$": 0
+    }
+  ],
+  "NewProduct": {
+    "VisibleTrigger$": false,
+    "Name$": "",
+    "SubmitTrigger$": 0,
+    "CancelTrigger$": 0
+  },
+  "CreateDefaultBicycleProductTrigger$": 0,
+  "CreateDefaultComputerProductTrigger$": 0
+}

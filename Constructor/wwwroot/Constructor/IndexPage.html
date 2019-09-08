@@ -8,7 +8,7 @@
                 <h2>Starcounter Product Constructor Demo</h2>
                 <div class="item-container">
                     <template is="dom-repeat" items="[[model.Products]]">
-                        <template is="dom-if" if="[[!item.Delete]]">
+                        <template is="dom-if" if="[[!item.DeleteTrigger$]]">
                             <div>
                                 <a href="/constructor/product/[[item.ObjectNoStr]]">
                                     <div class="item">
@@ -23,7 +23,7 @@
                                                 <li>[[item.Repository.BranchCountStr]]</li>
                                                 <li>[[item.Repository.CommitCountStr]]</li>
                                                 <li>
-                                                    <input type="image" src="/Constructor/assets/icons/icon-trashcan.svg" disabled="[[item.Delete]]" value="{{item.Delete::click}}" onmouseup="++this.value;" onclick="event.preventDefault(); event.stopPropagation(); return false;" class="item__button-image" />
+                                                    <input type="image" src="/Constructor/assets/icons/icon-trashcan.svg" disabled="[[item.DeleteTrigger$]]" value="{{item.DeleteTrigger$::click}}" onmouseup="++this.value;" onclick="event.preventDefault(); event.stopPropagation(); return false;" class="item__button-image" />
                                                 </li>
                                             </ul>
                                         </div>
@@ -34,12 +34,12 @@
                     </template>
                 </div>
                 <div class="ui-controls__main">
-                    <button class="btn btn__primary" type="button" value="{{model.NewProduct.IsVisible::click}}" onmouseup="this.value = true;">New Product</button>
-                    <button class="btn btn__secondary btn__secondary--flat" type="button" value="{{model.CreateDefaultBicycleProduct::click}}" onmouseup="++this.value;">Create Bicycle</button>
-                    <button class="btn btn__secondary btn__secondary--flat" type="button" value="{{model.CreateDefaultComputerProduct::click}}" onmouseup="++this.value;">Create Computer</button>
+                    <button class="btn btn__primary" type="button" value="{{model.NewProduct.VisibleTrigger$::click}}" onmouseup="this.value = true;">New Product</button>
+                    <button class="btn btn__secondary btn__secondary--flat" type="button" value="{{model.CreateDefaultBicycleProductTrigger$::click}}" onmouseup="++this.value;">Create Bicycle</button>
+                    <button class="btn btn__secondary btn__secondary--flat" type="button" value="{{model.CreateDefaultComputerProductTrigger$::click}}" onmouseup="++this.value;">Create Computer</button>
                 </div>
 
-                <template is="dom-if" if="[[model.NewProduct.IsVisible]]" restamp>
+                <template is="dom-if" if="[[model.NewProduct.VisibleTrigger$]]" restamp>
                     <div class="overlay">
                         <div class="card">
                             <div class="card__title">
@@ -47,7 +47,7 @@
                             </div>
                             <div class="card__info">
                                 <div class="input">
-                                    <input type="text" maxlength="250" value="{{model.NewProduct.Name::change}}" placeholder="Name" />
+                                    <input type="text" maxlength="250" value="{{model.NewProduct.Name$::change}}" placeholder="Name" />
                                     <script>
                                         {
                                             const script = document.currentScript;
@@ -59,8 +59,8 @@
                                 </div>
                             </div>
                             <div class="card__ui">
-                                <button class="btn btn__primary" type="button" disabled="[[model.NewProduct.Submit]]" value="{{model.NewProduct.Submit::click}}" onmouseup="++this.value">Submit</button>
-                                <button class="btn btn__secondary btn__secondary--flat" type="button" disabled="[[model.NewProduct.Cancel]]" value="{{model.NewProduct.Cancel::click}}" onmouseup="++this.value;">Cancel</button>
+                                <button class="btn btn__primary" type="button" disabled="[[model.NewProduct.SubmitTrigger$]]" value="{{model.NewProduct.SubmitTrigger$::click}}" onmouseup="++this.value">Submit</button>
+                                <button class="btn btn__secondary btn__secondary--flat" type="button" disabled="[[model.NewProduct.CancelTrigger$]]" value="{{model.NewProduct.CancelTrigger$::click}}" onmouseup="++this.value;">Cancel</button>
                             </div>
                         </div>
                     </div>

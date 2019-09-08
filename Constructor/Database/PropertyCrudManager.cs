@@ -2,71 +2,45 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Starcounter.Nova;
-using Starcounter.Palindrom.Database;
 
 namespace Constructor.Database
 {
     internal class PropertyCrudManager
     {
-        private IStarcounterInteractionContext InteractionContext { get; }
-
-        public PropertyCrudManager(IStarcounterInteractionContext interactionContext)
-        {
-            InteractionContext = interactionContext;
-        }
-
         public string GetStringValue(Item item, [CallerMemberName] string propertyName = "")
         {
-            return InteractionContext.Run(() =>
-            {
-                Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
-                return property?.StringValue;
-            });
+            Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
+            return property?.StringValue;
         }
 
         public int? GetIntValue(Item item, [CallerMemberName] string propertyName = "")
         {
-            return InteractionContext.Run(() =>
-            {
-                Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
-                return property?.IntValue;
-            });
+            Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
+            return property?.IntValue;
         }
 
         public bool? GetBoolValue(Item item, [CallerMemberName] string propertyName = "")
         {
-            return InteractionContext.Run(() =>
-            {
-                Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
-                return property?.BoolValue;
-            });
+            Property property = GetReadProperty(item.Repository.CurrentCommit, item, propertyName);
+            return property?.BoolValue;
         }
 
         public void SetStringValue(Item item, string value, [CallerMemberName] string propertyName = "")
         {
-            InteractionContext.Run(() =>
-            {
-                Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
-                property.StringValue = value;
-            });
+            Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
+            property.StringValue = value;
         }
 
         public void SetIntValue(Item item, int? value, [CallerMemberName] string propertyName = "")
         {
-            InteractionContext.Run(() =>
-            {
-                Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
-                property.IntValue = value;
-            });
+            Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
+            property.IntValue = value;
         }
 
         public void SetBoolValue(Item item, bool? value, [CallerMemberName] string propertyName = "")
         {
-            InteractionContext.Run(() =>
-            {
-                Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
-                property.BoolValue = value;
-            });
+            Property property = GetOrCreateWriteProperty(item.Repository.CurrentCommit, item, propertyName);
+            property.BoolValue = value;
         }
 
         public Property GetReadProperty(Commit commit, Item item, string propertyName)

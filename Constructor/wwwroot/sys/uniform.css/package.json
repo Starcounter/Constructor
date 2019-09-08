@@ -1,0 +1,46 @@
+{
+  "name": "uniform.css",
+  "version": "0.10.0",
+  "description": "Opinionated CSS library that plays nicely within Shadow DOM, plus a set of elements to be used as decorators in Shadow DOM",
+  "main": "build.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Starcounter/Uniform.css.git"
+  },
+  "contributors": [
+    "Omar Alshaker",
+    "Tomek Wytrebowicz",
+    "Patryk Szwermer"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack && node build.js",
+    "test": "wct",
+    "wct": "wct",
+    "wct:no-sauce": "wct --skip-plugin sauce",
+    "wct:sauce-only": "wct --skip-plugin local --plugin sauce"
+  },
+  "bugs": {
+    "url": "https://github.com/Starcounter/Uniform.css/issues"
+  },
+  "homepage": "https://github.com/Starcounter/Uniform.css#readme",
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.3.1",
+    "css-loader": "^0.28.7",
+    "cssnano": "^3.10.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.11",
+    "grunt": "^1.0.3",
+    "grunt-bump": "^0.8.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "postcss": "^7.0.0",
+    "style-loader": "^0.19.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.1"
+  },
+  "dependencies": {
+    "normalize.css": "^8.0.0"
+  }
+}

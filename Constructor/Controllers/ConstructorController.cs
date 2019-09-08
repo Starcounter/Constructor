@@ -1,38 +1,26 @@
-﻿using Constructor.Database;
-using Constructor.ViewModels;
+﻿using Constructor.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Starcounter.Nova;
-using Starcounter.Palindrom;
-using Starcounter.Palindrom.AspNetCore;
-using Starcounter.Palindrom.Database;
+using Starcounter.Nova.Scopes;
+using Starcounter.XSON.Palindrom;
 
 namespace Constructor.Controllers
 {
     public class ConstructorController : Controller
     {
-        private IPalindromContext PalindromContext { get; }
-
-        public ConstructorController(IPalindromContext palindromContext, IStarcounterInteractionContext interactionContext)
+        [XSON, Route("/constructor")]
+        public XSONResult IndexPage() => Scope.CreateScope().Run(() =>
         {
-            PalindromContext = palindromContext;
+            var page = new IndexPage();
+            page.Init();
+            return page;
+        });
 
-            // This way we tell the Palindrom context to use the Starcounter interaction context.
-            // We can also set the default interaction context (see Startup), in which case we 
-            // don't need this.
-            PalindromContext.InteractionContext = interactionContext;
-        }
-
-        [Palindrom, Route("/constructor")]
-        public PalindromResult IndexPage()
+        [XSON, Route("/constructor/product/{id}")]
+        public XSONResult ProductPage(ulong id) => Scope.CreateScope().Run(() =>
         {
-            return new IndexPage(PalindromContext);
-        }
-
-        [Palindrom, Route("/constructor/product/{id}")]
-        public PalindromResult ProductPage(ulong id)
-        {
-            var product = Db.Get<Product>(id);
-            return new ProductPage(product, PalindromContext);
-        }
+            var productPage = new ProductPage();
+            productPage.Init(id);
+            return productPage;
+        });
     }
 }

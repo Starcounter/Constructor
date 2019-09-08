@@ -6,21 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ViewModels\IndexPage.json.cs" />
-    <Compile Remove="ViewModels\ProductPage.json.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="ViewModels\IndexPage.json" />
-    <Content Remove="ViewModels\ProductPage.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Starcounter.Linq" Version="3.4.1" />
     <PackageReference Include="Starcounter.Nova.App" Version="3.0.0-*" />
-    <PackageReference Include="Starcounter.Palindrom" Version="1.0.*" />
-    <PackageReference Include="Starcounter.Palindrom.AspNetCore" Version="1.0.*" />
-    <PackageReference Include="Starcounter.Palindrom.Database" Version="1.0.*" />
+    <PackageReference Include="Starcounter.XSON.Palindrom.AspNetCore" Version="0.8.*" />
+    <PackageReference Include="Starcounter.XSON.MSBuild" Version="0.8.*" />
   </ItemGroup>
-
+  <ItemGroup>
+    <TypedJSON Include="ViewModels\ProductPage.json">
+      <Generator>MsBuild:Compile</Generator>
+    </TypedJSON>
+    <TypedJSON Include="ViewModels\IndexPage.json">
+      <Generator>MsBuild:Compile</Generator>
+    </TypedJSON>
+  </ItemGroup>
 </Project>

@@ -2,22 +2,35 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Constructor</title>
+    <title>{0}</title>
+    <script>
+      (async function() {{
+        const logPrefix = '[Starcounter App Shell]';
+        if ('serviceWorker' in navigator) {{
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for(const registration of registrations) {{
+              registration.unregister()
+          }}
+          if(registrations.length > 0) {{
+            console.info(`${{logPrefix}} Removed ${{registrations.length}} service worker registration${{registrations.length > 1 ? 's' : ''}}`);
+            location.reload(); // reload the page to lose content that was served from cache
+          }}
+        }};
+      }})()
+    </script>
     <script src="/sys/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="/sys/polymer/polymer.html" />
-    <link rel="import" href="/sys/palindrom-client/palindrom-client.html" />
-    <link rel="import" href="/sys/imported-template/imported-template.html" />
-    <link rel="manifest" />
+    <link rel="import" href="/sys/polymer/polymer.html">
+    <link rel="import" href="/sys/starcounter.html">
+    <link rel="manifest">
+    <link rel="shortcut icon" href="/Constructor/favicon-32x32.png" />
 </head>
 <body>
     <dom-bind id="palindrom-root">
         <template>
-            <template is="dom-if" if="[[model.ViewModel.Html]]">
-                <imported-template href="[[model.ViewModel.Html]]" model="[[model.ViewModel]]"></imported-template>
-            </template>
+            <starcounter-include view-model="{{{{model}}}}"></starcounter-include>
         </template>
     </dom-bind>
-    
-    <palindrom-client ref="palindrom-root"></palindrom-client>
+
+    <palindrom-client ref="palindrom-root" remote-url="{1}"></palindrom-client>
 </body>
 </html>
