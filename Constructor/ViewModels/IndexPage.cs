@@ -37,15 +37,16 @@ namespace Constructor.ViewModels
 
         internal void RefreshProducts()
         {
-            var newItems = DbLinq
-                .Objects<Product>()
-                .OrderBy(x => x.Name)
-                .ThenBy(x => Db.GetOid(x))
-                .AsEnumerable()
-                .Select(p => new IndexProductModel(p, this, Context));
-            Products.Clear();
-            Products.AddRange(newItems);
-            this.MemberChanged(i => i.Products);
+            this.PatchViewModelCollection
+            (
+                collectionSelector: i => i.Products,
+                updatedEnumeration: DbLinq
+                    .Objects<Product>()
+                    .OrderBy(x => x.Name)
+                    .ThenBy(x => Db.GetOid(x)),
+                equalityItemSelector: model => model.Product,
+                listItemFactory: product => new IndexProductModel(product, this, Context)
+            );
         }
     }
 }

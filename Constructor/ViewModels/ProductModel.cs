@@ -42,12 +42,13 @@ namespace Constructor.ViewModels
 
         internal void ReloadModules()
         {
-            var moduleModels = Product.Modules
-                .AsEnumerable()
-                .Select(m => new ModuleModel(m, this, Context));
-            Modules.Clear();
-            Modules.AddRange(moduleModels);
-            this.MemberChanged(p => p.Modules);
+            this.PatchViewModelCollection
+            (
+                collectionSelector: p => p.Modules,
+                updatedEnumeration: Product.Modules,
+                equalityItemSelector: model => model.Module,
+                listItemFactory: module => new ModuleModel(module, this, Context)
+            );
         }
 
         internal void AddModule(Module module)

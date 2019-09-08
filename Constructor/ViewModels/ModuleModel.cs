@@ -57,22 +57,24 @@ namespace Constructor.ViewModels
             }
         }
 
+        [Member(unmonitored: true)]
         public long TotalAmount => Module.TotalAmount;
 
+        [Member(unmonitored: true)]
         public bool IsModified
         {
             get
             {
                 if (Module == null) return false;
-                var changes = Module.Repository.CurrentCommit.Properties.ToList();
-                return changes.Any(x => x.Item.Equals(Module));
+                return Module.Repository.CurrentCommit.Properties.AsEnumerable().Any(x => x.Item.Equals(Module));
             }
         }
 
+        [Member(unmonitored: true)]
         internal bool IsDeleted => Module?.IsDeleted != false;
 
         private ProductModel ProductModel { get; }
-        private Module Module { get; }
+        internal Module Module { get; }
 
         public ModuleModel(Module module, ProductModel parent, IPalindromContext context) : base(context)
         {

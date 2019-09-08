@@ -6,7 +6,7 @@ using Starcounter.Nova;
 namespace Constructor.Database
 {
     [Database]
-    public abstract class Commit
+    public abstract class Commit : IEquatable<Commit>
     {
         public abstract string Key { get; set; }
         public abstract Branch Branch { get; set; }
@@ -33,5 +33,7 @@ namespace Constructor.Database
             instance.Key = $"{previousCommit.Key}-{Db.GetOid(instance)}";
             return instance;
         }
+
+        public bool Equals(Commit other) => Db.Equals(this, other);
     }
 }

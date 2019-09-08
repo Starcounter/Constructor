@@ -9,11 +9,13 @@ namespace Constructor.ViewModels
     {
         public string ObjectNoStr { get; }
         public string Name => Branch.Name;
+
+        [Member(unmonitored: true)]
         public bool IsCurrent => ParentPage?.Repository?.CurrentBranch?.Equals(Branch) ?? false;
 
-        private Branch Branch { get; }
+        internal Branch Branch { get; }
         private ProductPage ParentPage { get; }
-        
+
         public BranchModel(Branch branch, ProductPage parentPage, IPalindromContext context) : base(context)
         {
             Branch = branch;

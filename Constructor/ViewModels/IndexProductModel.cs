@@ -12,7 +12,7 @@ namespace Constructor.ViewModels
         public string ImageUrl => Product.ImageUrl;
         public RepositoryModel Repository { get; }
 
-        private Product Product { get; }
+        internal Product Product { get; }
         private IndexPage ParentPage { get; }
 
         public void Delete()

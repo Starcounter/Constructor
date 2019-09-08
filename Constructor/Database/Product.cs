@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Starcounter.Linq;
 using Starcounter.Nova;
 
 namespace Constructor.Database
 {
     [Database]
-    public abstract class Product : Item
+    public abstract class Product : Item, IEquatable<Product>
     {
         public static Product Create(Repository repository)
         {
@@ -25,5 +26,7 @@ namespace Constructor.Database
 
             base.PreDelete();
         }
+
+        public bool Equals(Product other) => Db.Equals(this, other);
     }
 }

@@ -42,7 +42,6 @@ namespace Constructor.Database
             });
         }
 
-
         public void SetStringValue(Item item, string value, [CallerMemberName] string propertyName = "")
         {
             InteractionContext.Run(() =>

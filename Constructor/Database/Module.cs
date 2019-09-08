@@ -1,9 +1,10 @@
-﻿using Starcounter.Nova;
+﻿using System;
+using Starcounter.Nova;
 
 namespace Constructor.Database
 {
     [Database]
-    public abstract class Module : Item
+    public abstract class Module : Item, IEquatable<Module>
     {
         public abstract Product Product { get; set; }
 
@@ -30,5 +31,9 @@ namespace Constructor.Database
         /// Returns multiplication of <see cref="Quantity"/> and <see cref="Price"/>.
         /// </summary>
         public int TotalAmount => Quantity * Price;
+
+        public bool Equals(Module other) => Db.Equals(this, other);
     }
+
+
 }

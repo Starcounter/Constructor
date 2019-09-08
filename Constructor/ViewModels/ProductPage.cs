@@ -39,8 +39,6 @@ namespace Constructor.ViewModels
 
         public ProductPage(Product product, IPalindromContext context) : base(context)
         {
-            Branches = new List<BranchModel>();
-            Commits = new List<CommitModel>();
             Product = new ProductModel(product, Context);
             Repository = product.Repository ?? throw new ArgumentNullException(nameof(product.Repository));
 
@@ -48,9 +46,22 @@ namespace Constructor.ViewModels
                 .OrderBy(b => Db.GetOid(b.ParentBranch))
                 .ThenBy(b => Db.GetOid(b))
                 .ToList();
+
             var branch = Repository.CurrentBranch ?? branches.Single(x => x.ParentBranch == null);
-            ReplaceBranches(branches);
-            SelectBranch(branch);
+
+            Branches = branches
+                .Select(b => new BranchModel(b, this, Context))
+                .ToList();
+
+            var commits = GetCommits(branch).ToList();
+            var commit = commits[0];
+
+            Commits = commits
+                .Select(c => new CommitModel(c, this, Context))
+                .ToList();
+
+            Repository.CurrentBranch = branch;
+            Repository.CurrentCommit = commit;
 
             ForkBranchDialog = new ForkBranchDialogModel(this, Context);
         }
@@ -68,7 +79,7 @@ namespace Constructor.ViewModels
             Branch branch = Repository.CurrentBranch;
             Commit commit = branch.StartEdit();
             var commits = GetCommits(branch);
-            ReplaceCommits(commits);
+            PatchCommits(commits);
             CloseCommitName = commit.Name;
         }
 
@@ -76,14 +87,14 @@ namespace Constructor.ViewModels
         {
             Repository.CurrentBranch.FinishEdit(CloseCommitName);
             var commits = GetCommits(Repository.CurrentBranch);
-            ReplaceCommits(commits);
+            PatchCommits(commits);
         }
 
         public void CancelCommit()
         {
             Repository.CurrentBranch.CancelEdit();
             var commits = GetCommits(Repository.CurrentBranch);
-            ReplaceCommits(commits);
+            PatchCommits(commits);
         }
 
         public void ForkBranch()
@@ -91,20 +102,15 @@ namespace Constructor.ViewModels
             throw new NotImplementedException();
         }
 
-        private void ReplaceBranches(IEnumerable<Branch> branches)
+        private void PatchCommits(IEnumerable<Commit> commits)
         {
-            Branches.Clear();
-            var convertedBranches = branches.Select(b => new BranchModel(b, this, Context));
-            Branches.AddRange(convertedBranches);
-            this.MemberChanged(p => p.Branches);
-        }
-
-        private void ReplaceCommits(IEnumerable<Commit> commits)
-        {
-            Commits.Clear();
-            var newCommits = commits.Select(c => new CommitModel(c, this, Context));
-            Commits.AddRange(newCommits);
-            this.MemberChanged(p => p.Commits);
+            this.PatchViewModelCollection
+            (
+                collectionSelector: page => page.Commits,
+                updatedEnumeration: commits,
+                equalityItemSelector: model => model.Commit,
+                listItemFactory: commit => new CommitModel(commit, this, Context)
+            );
         }
 
         private IEnumerable<Commit> GetCommits(Branch branch)
@@ -116,7 +122,7 @@ namespace Constructor.ViewModels
         {
             var commits = GetCommits(branch).ToList();
             var commit = commits[0];
-            ReplaceCommits(commits);
+            PatchCommits(commits);
             Repository.CurrentBranch = branch;
             Repository.CurrentCommit = commit;
         }
@@ -125,7 +131,6 @@ namespace Constructor.ViewModels
         {
             if (IsEditing) return;
             Repository.CurrentCommit = commit;
-            this.MemberChanged(x => x.Commits);
             Product.ReloadModules();
         }
     }

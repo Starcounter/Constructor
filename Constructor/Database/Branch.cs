@@ -7,7 +7,7 @@ using Starcounter.Nova;
 namespace Constructor.Database
 {
     [Database]
-    public abstract class Branch
+    public abstract class Branch : IEquatable<Branch>
     {
         #region Constants
 
@@ -147,5 +147,7 @@ namespace Constructor.Database
                 Db.Delete(commit);
             }
         }
+
+        public bool Equals(Branch other) => Db.Equals(this, other);
     }
 }

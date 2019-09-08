@@ -9,6 +9,8 @@ namespace Constructor.ViewModels
     {
         public string ObjectNoStr { get; }
         public string Name => Commit.Name;
+
+        [Member(unmonitored: true)]
         public bool IsCurrent => ParentPage?.Repository?.CurrentCommit?.Equals(Commit) ?? false;
 
         internal Commit Commit { get; }
