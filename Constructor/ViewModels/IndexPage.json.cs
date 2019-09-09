@@ -55,7 +55,7 @@ namespace Constructor.ViewModels
                 {
                     Data.Repository.PreDelete();
                     Db.Delete(Data.Repository);
-                });
+                }, new TransactOptions(() => { }));
             }
         }
 
@@ -78,7 +78,7 @@ namespace Constructor.ViewModels
                     Repository repository = Repository.Create(Name + " Repository");
                     Product product = Product.Create(repository);
                     product.Name = name;
-                });
+                }, new TransactOptions(() => { }));
 
                 action.Cancel();
                 VisibleTrigger = false;

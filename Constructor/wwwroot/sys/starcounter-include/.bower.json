@@ -23,28 +23,26 @@
     "bower_components",
     "Gruntfile.js",
     "wwwroot/sys",
-    "package-lock.json",
     "test",
     "wct.conf.json",
     "demo",
     "sc"
   ],
   "dependencies": {
-    "imported-template": "^3.4.0"
+    "imported-template": "^3.1.0"
   },
   "devDependencies": {
     "web-component-tester": "^6.0.0",
-    "polymer": "^2.2.0",
-    "enlighted-link": "^0.1.0"
+    "polymer": "^2.2.0"
   },
-  "version": "5.4.0",
-  "_release": "5.4.0",
+  "version": "5.0.0",
+  "_release": "5.0.0",
   "_resolution": {
     "type": "version",
-    "tag": "5.4.0",
-    "commit": "bd57659b94ccb15698fbd76cdfedbf80970fe8d4"
+    "tag": "5.0.0",
+    "commit": "cb4e3bd288d6294ee478a06a44415dc51641c359"
   },
   "_source": "https://github.com/Starcounter/starcounter-include.git",
-  "_target": "^5.4.0",
+  "_target": "^5.0.0",
   "_originalSource": "starcounter-include"
 }

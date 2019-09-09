@@ -1,5 +1,6 @@
 ﻿using Constructor.Database;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Starcounter.Nova.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ namespace Constructor
         {
             services.AddResponseCaching();
             services.AddStarcounter("Database=./.database/Constructor");
+            services.Configure<KestrelServerOptions>(o => o.AllowSynchronousIO = true);
             services.AddSingleton<PropertyCrudManager>();
             services.AddMvc(o => o.EnableEndpointRouting = false);
             services.AddXSON("Constructor", "__constructor");
@@ -28,6 +30,7 @@ namespace Constructor
         public void Configure(IApplicationBuilder app)
         {
             app.UseDeveloperExceptionPage();
+            app.UseWebSockets();
             app.UseXSON();
             app.UseMvcWithDefaultRoute();
             Item.PropertyCrud = app.ApplicationServices.GetService<PropertyCrudManager>();

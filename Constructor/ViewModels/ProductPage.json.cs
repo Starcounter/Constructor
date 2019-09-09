@@ -34,7 +34,7 @@ namespace Constructor.ViewModels
 
             Branches.Data = branches;
 
-            Db.Transact(() => { SelectBranch(branch); });
+            Db.Transact(() => { SelectBranch(branch); }, new TransactOptions(() => { }));
         }
 
         public bool IsEditing => !Repository.CurrentCommit.IsClosed;
@@ -84,7 +84,7 @@ namespace Constructor.ViewModels
         {
             action.Cancel();
 
-            Db.Transact(() => { Repository.CurrentBranch.FinishEdit(CloseCommitName); });
+            Db.Transact(() => { Repository.CurrentBranch.FinishEdit(CloseCommitName); }, new TransactOptions(() => { }));
 
             Commits.Data = GetCommits(Repository.CurrentBranch);
         }
@@ -93,7 +93,7 @@ namespace Constructor.ViewModels
         {
             action.Cancel();
 
-            Db.Transact(() => { Repository.CurrentBranch.CancelEdit(); });
+            Db.Transact(() => { Repository.CurrentBranch.CancelEdit(); }, new TransactOptions(() => { }));
 
             Commits.Data = GetCommits(Repository.CurrentBranch);
         }
@@ -110,7 +110,7 @@ namespace Constructor.ViewModels
                 }
 
                 Module.Create(Product.Data);
-            });
+            }, new TransactOptions(() => { }));
         }
 
         [ProductPage_json.Branches]
@@ -131,7 +131,7 @@ namespace Constructor.ViewModels
             {
                 action.Cancel();
 
-                Db.Transact(() => { ParentPage.SelectBranch(Data); });
+                Db.Transact(() => { ParentPage.SelectBranch(Data); }, new TransactOptions(() => { }));
             }
         }
 
@@ -153,7 +153,7 @@ namespace Constructor.ViewModels
             {
                 action.Cancel();
 
-                Db.Transact(() => { ParentPage.SelectCommit(Data); });
+                Db.Transact(() => { ParentPage.SelectCommit(Data); }, new TransactOptions(() => { }));
             }
         }
 
@@ -231,7 +231,7 @@ namespace Constructor.ViewModels
 
                     branch = Branch.Create(name, current);
                     parent.SelectBranch(branch);
-                });
+                }, new TransactOptions(() => { }));
 
                 parent.Branches.Add().Data = branch;
             }

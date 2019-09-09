@@ -23,18 +23,16 @@
     "bower_components",
     "Gruntfile.js",
     "wwwroot/sys",
-    "package-lock.json",
     "test",
     "wct.conf.json",
     "demo",
     "sc"
   ],
   "dependencies": {
-    "imported-template": "^3.4.0"
+    "imported-template": "^3.1.0"
   },
   "devDependencies": {
     "web-component-tester": "^6.0.0",
-    "polymer": "^2.2.0",
-    "enlighted-link": "^0.1.0"
+    "polymer": "^2.2.0"
   }
 }

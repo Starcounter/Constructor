@@ -3,8 +3,8 @@
 Custom Element (w/ Polymer's TemplateBinding)
 with predefined template content, which should be used to include partials.
 It's just <imported-template> wrapped within Shadow Root for `declarative-shadow-dom` bindable by layout editor.
-Uses Shadow DOM given from DB as `Starcounter.MergedPartial.{_compositionProvider_}.Composition`.
-version: 5.4.0
+Uses Shadow DOM given from DB as `Starcounter.MergedPartial.{_compositionProvider_}.Composition$`.
+version: 5.0.0
 
 -->
 <!-- Import dependencies -->
@@ -12,47 +12,18 @@ version: 5.4.0
 
 <script>
     (function() {
-        function warnAboutDeprecatedPartial(element) {
-            console.warn('`partial` attribute and property are deprecated from `starcounter-include` in favour of (viewModel property or view-model attribute), they will soon be no longer be supported', element);
+        function warnAboutDeprecatedPartial() {
+            console.warn('`partial` attribute and property are deprecatrd from `starcounter-include` in fovour of (viewModel property or view-model attribute), they will soon be no longer be supported');
         }
-        const BLOCKING_LINKS_SELECTOR = 'link[rel="stylesheet"]';
-        const DEFAULT_SHADOW_DOM_PRESENTATION_SELECTOR = 'template[is="declarative-shadow-dom"][presentation=default],template[is="declarative-shadow-dom"]:not([presentation])';
-
         const isWebkit = navigator.vendor && navigator.vendor.indexOf("Apple") > -1;
 
         // still needed for .selectNode
         const isSafari = isWebkit && navigator.userAgent && !navigator.userAgent.match("CriOS");
         const fallBackComposition = '<style>:host{display:block;}</style><slot></slot>';
 
-        /**
-         * Returns a rejectable promise to load (or fail to load) all blocking
-         * link elements in given scope.
-         * @param  {Node} scope scope to be queried for the elements
-         * @return {Promise|null} `.reject()`able promise that all links will be loaded,
-         *                        or `null` if there are none
-         */
-        function blockingLinksLoaded(scope){
-            const links = scope.querySelectorAll(BLOCKING_LINKS_SELECTOR);
-            if(links.length === 0){
-                return null;
-            }
-            let rejectDefer;
-            const promise = new Promise((resolveAll, rejectAll) => {
-                Promise.all(Array.from(links).map((link)=>{
-                    return new Promise((resolve, reject)=>{
-                        link.addEventListener('load', resolve);
-                        link.addEventListener('error', resolve);
-                    });
-                })).then(resolveAll);
-                rejectDefer = rejectAll;
-            });
-            promise.reject = rejectDefer;
-            return promise;
-        }
-
         class StarcounterInclude extends HTMLElement {
             static get observedAttributes() {
-                return ['partial', 'view-model', 'partialId', 'loading-presentation', 'loading-content'];
+                return ['partial', 'view-model', 'partialId'];
             }
             /**
             * Create shadowRoot, define property setters, set initial partial.
@@ -64,7 +35,7 @@ version: 5.4.0
                 var viewModel = this.viewModel || this.partial || undefined;
 
                 if(this.partial) {
-                    warnAboutDeprecatedPartial(this);
+                    warnAboutDeprecatedPartial();
                 }
 
                 checkForNonNamespaced(viewModel, this);
@@ -80,7 +51,7 @@ version: 5.4.0
                 Object.defineProperties(this, {
                     partial: {
                         set: function(newValue) {
-                            warnAboutDeprecatedPartial(this);
+                            warnAboutDeprecatedPartial();
                             this.viewModel = newValue;
                         },
                         get: function() {
@@ -137,12 +108,10 @@ version: 5.4.0
                     const importedTemplate = document.createElement('imported-template');
                     importedTemplate.addEventListener('stamping', function fetchCompositions(event) {
                         var mergedComposition = null;
-                        const fragment = event.detail;
-                        const templates = fragment.querySelectorAll(DEFAULT_SHADOW_DOM_PRESENTATION_SELECTOR);
+                        const templates = event.detail.querySelectorAll('template[is="declarative-shadow-dom"]');
                         if(templates.length){
                             mergedComposition = document.createDocumentFragment();
                             for(const individualComposition of templates) {
-                                individualComposition.setAttribute('presentation', 'default');
                                 mergedComposition.appendChild(individualComposition.content.cloneNode(true));
                             };
                         }
@@ -193,24 +162,14 @@ version: 5.4.0
          * Set partial property if partial or view-model attribute was changed
          */
         StarcounterIncludePrototype.attributeChangedCallback = function(name, oldVal, newVal) {
-            switch(name){
-                case "view-model":
-                    this.viewModel = partialAttributeToProperty(this, newVal);
-                    break;
-                case "partial":
-                    if(!oldVal /* to warn only once */) {
-                        warnAboutDeprecatedPartial(this);
-                    }
-                    this.viewModel = partialAttributeToProperty(this, newVal);
-                    break;
-                // Not to overwrite existing compositions, change BlendingEditor,
-                // partialToStandaloneHTMLProvider, and due to lack of
-                // custom-elements default styles
-                // https://github.com/w3c/webcomponents/issues/468
-                // , we need to make single rule inline
-                case "loading-presentation":
-                    this.style.visibility = (this.hasAttribute('loading-presentation')) ?
-                        'hidden' : 'visible';
+            if (name === "view-model") {
+                this.viewModel = partialAttributeToProperty(this, newVal);
+            }
+            else if(name === "partial") {
+                if(!oldVal /* to warn only once */) {
+                    warnAboutDeprecatedPartial();
+                }
+                this.viewModel = partialAttributeToProperty(this, newVal);
             }
         };
         /**
@@ -262,19 +221,18 @@ version: 5.4.0
             }
         }
         /**
-         * @deprecated Use `starcounterInclude.shadowRoot` or `viewModel.{compositionProvider}.Composition`
+         * @deprecated Use `starcounterInclude.shadowRoot` or `viewModel.{compositionProvider}.Composition$`
          * @alias #updateComposition
          */
         StarcounterIncludePrototype._compositionChanged = function(compositionString) {
-            console.warn('_compositionChanged, was renamed to updateComposition. Most probably you don\'t even need to use it. In most of the cases `starcounterInclude.shadowRoot` or changing the `viewModel.{compositionProvider}.Composition` should do the right thing.');
+            console.warn('_compositionChanged, was renamed to updateComposition. Most probably you don\'t even need to use it. In most of the cases `starcounterInclude.shadowRoot` or changing the `viewModel.{compositionProvider}.Composition$` should do the right thing.');
             return this.updateComposition(compositionString);
         };
         /**
          * Handles change of the composition.
          * Temporary composition can be given explicitely in the function argument
          * If temporary composition not given, fetches custom composition from provider.
-         * If custom composition not given, fetches parent composition from the child `template`.
-         * If parent composition not given, fetches default composition from the imported template.
+         * If custom composition not given, fetches default composition from the imported template.
          * If default composition not given, uses fallback composition.
          * Warning: the temporary composition might come from https://github.com/Starcounter/starcounter-layout-html-editor/blob/17b21f729facd9a8dcd4241fb5c48cb71de11af5/starcounter-layout-html-editor.html#L253
          * @see .stampComposition
@@ -287,17 +245,16 @@ version: 5.4.0
             }
             else {
                 const compositionProvider = this.viewModel && this.viewModel[this.compositionProvider];
+
                 if (compositionProvider) {
                     this.partialId = compositionProvider.PartialId;
                     this.temporaryComposition = null;
-					// For backward compatibility
-					var compositionProviderComposition = compositionProvider.Composition;
                     if (compositionString === "") {
                         //this is a request from starcounter-layout-html-editor to reset to default composition
                     }
-                    else if (compositionProviderComposition) {
-                        this.storedLayout = compositionProviderComposition; //should always be string
-                        return this._renderCompositionChange(compositionProviderComposition, () => {
+                    else if (compositionProvider.Composition$) {
+                        return this._renderCompositionChange(compositionProvider.Composition$, () => {
+                            this.storedLayout = compositionProvider.Composition$; //should always be string
                             const merged = this.stringToDocumentFragment(this.storedLayout);
 
                             if (compositionProvider.ViewUris) {
@@ -327,18 +284,6 @@ version: 5.4.0
                     this.partialId = null;
                 }
 
-                // Find parent composition to clone (if have one)
-                const parentCompositionTemplate = Array.from(this.children)
-                    .find((element)=>{
-                        return element.matches
-                            && element.matches('template[is="declarative-shadow-dom"][presentation="parent"],template[is="declarative-shadow-dom"]:not([presentation])')
-                    });
-                const parentComposition = parentCompositionTemplate && parentCompositionTemplate.content;
-                if (parentComposition) {
-                    parentCompositionTemplate.setAttribute('presentation', 'parent');
-                    this.temporaryComposition = null;
-                    return this._renderCompositionChange(parentComposition, () => parentComposition.cloneNode(true));
-                }
                 if (this.defaultComposition) {
                     this.temporaryComposition = null;
                     return this._renderCompositionChange(this.defaultComposition, () => this.defaultComposition.cloneNode(true));
@@ -351,12 +296,11 @@ version: 5.4.0
         };
         // to fool Polymer into thinking `starcounter-include` is a polymer element thus forwarding notifications to it.
         StarcounterIncludePrototype.__dataHasAccessor = {partial: true, viewModel: true};
-        StarcounterIncludePrototype.__isPropertyEffectsClient = true;
 
         // Polymer doesn't set props on its own components, rather, it calls this function
         StarcounterIncludePrototype._setPendingProperty = function (path, value) {
             if(path === 'partial') {
-                warnAboutDeprecatedPartial(this);
+                warnAboutDeprecatedPartial();
             }
             this[path] = value;
         }
@@ -402,15 +346,8 @@ version: 5.4.0
                 ){
                     this._updateHref();
                     return;
-                } else if (
-                    // Just the composition was changed
-                    // and it's different than already stored one
-                    subPath === this.compositionProvider + '.Composition' &&
-                    value != this.storedLayout
-                ) {
-                    this.updateComposition();
-                    return;
                 }
+                // TODO: handle just composition change add a test for a change for just model.{compositionProvider}.Composition$
                 // Notify about model change
                 if (this.template._setPendingPropertyOrPath) {
                     this.template._setPendingPropertyOrPath(newPath, value);
@@ -464,6 +401,21 @@ version: 5.4.0
                 return undefined;
             }
         };
+        /**
+         * Saves given or current composition as stored one, notifies binding about it.
+         * @param  {String} [compositionStr] composition to be saved, if not given current one will be used
+         * @TODO: to be simplified after https://github.com/StarcounterApps/CompositionProvider/pull/13 is done
+         */
+        StarcounterIncludePrototype.saveLayout = function(compositionStr){
+            compositionStr = compositionStr || this.shadowRoot.innerHTML;
+            this.viewModel[this.compositionProvider].Composition$ = compositionStr;
+            this.dispatchEvent(new CustomEvent("starcounter-include-composition-saved", {detail: compositionStr}));
+            // trigger polymer-notification-protocol-compilant event
+            var notificationPath = this.compositionProvider + '.Composition$';
+            this.dispatchEvent(new CustomEvent("partial-changed", {detail: {value: compositionStr, path: 'partial.' + notificationPath}}));
+            this.dispatchEvent(new CustomEvent("view-model-changed", {detail: {value: compositionStr, path: 'viewModel.' + notificationPath}}));
+        };
+
         // stringToDocumentFragment(strHTML) from http://stackoverflow.com/a/25214113/868184
         /**
          * Creates DocumentFragment from a string.
@@ -495,19 +447,11 @@ version: 5.4.0
          */
         function checkForNonNamespaced(viewModel, element){
             if(viewModel && typeof viewModel.Html !== 'undefined'){
-                console.warn(`The view ${viewModel.Html} is enclosed in a red-dotted line, because it is incorrectly provided to <starcounter-include> without an app namespace. Your options are to either:
-- Make it blendable by using Self.GET on server-side, or
-- Use <imported-template> instead of <starcounter-include> and remove declarative-shadow-dom from the nested view
-
-Read more at: https://starcounter.io/starcounter-include-non-namespaced-partial-view-models/`, viewModel, element);
-                element.style.outline = "4px red dotted";
-                element.style.outlineOffset = "-4px";
-                element.wasWarned = true;
-            }
-            else if(element.wasWarned) {
-                element.style.outline = null;
-                element.style.outlineOffset = null;
-                element.wasWarned = false;
+                console.warn(`Your view-model is probably not namespaced!
+`, viewModel, `
+We no longer support those.
+Please make sure it's a result of \`Self.GET\` on serverside. If it's not a result of blending, then replace \`<starcounter-include view-model="{{viewModel}}">\` with  \`<div><imported-template model="{{viewModel}}" href="{{viewModel.Html}}"></imported-template></div>\`.
+`, element);
             }
         };
 
@@ -517,36 +461,13 @@ Read more at: https://starcounter.io/starcounter-include-non-namespaced-partial-
          * @param {DocumentFragment} givenComposition
          */
         StarcounterIncludePrototype.stampComposition = function(givenComposition){
+            // create shadowRoot if none
             const shadowRoot = this.shadowRoot;
-            this.blockingShadowLinksLoaded && this.blockingShadowLinksLoaded.reject('composition-changed');
 
             if (givenComposition !== undefined) {
-                // reset SD
+                // reset SD to default CSS
                 shadowRoot.innerHTML = '';
 
-                // wait for blocking links
-                const blockingShadowLinksLoaded = blockingLinksLoaded(givenComposition);
-                this.blockingShadowLinksLoaded = blockingShadowLinksLoaded;
-
-                if(blockingShadowLinksLoaded){
-                    // We have some styles that need to be loaded
-                    this.setAttribute('loading-presentation', '');
-                    blockingShadowLinksLoaded.then(()=>{
-                        this.removeAttribute('loading-presentation');
-                        this.dispatchEvent(new CustomEvent('presentation-loaded'));
-                    }, (reason) => {
-                        // forward uncaught rejection
-                        // if reason is different than `composition-changed`
-                        if(reason !== 'composition-changed'){
-                            return Promise.reject(e);
-                        }
-                    });
-                } else {
-                    // The new presentation is styled synchronously, no need to wait.
-                    // Remove the attribute if there is one from previous, unresolved styles
-                    this.removeAttribute('loading-presentation');
-                    this.dispatchEvent(new CustomEvent('presentation-loaded'));
-                }
                 shadowRoot.appendChild(givenComposition);
                 // polyfill `polyfill-next-selector` if needed
                 typeof WebComponents !== 'undefined' && WebComponents.ShadowCSS &&
@@ -564,18 +485,6 @@ Read more at: https://starcounter.io/starcounter-include-non-namespaced-partial-
             console.error('clear is not yet defined!');
         }
 
-        // Desired use of upcoming Web Platform feature,
-        // so we would not have to implement all `loading-*` attributes and
-        // fallback composition logic.
-        // customElements.define('starcounter-include', StarcounterInclude,
-        //         { style: new CSSStyleSheet(`
-        //             :element([loading-presentation]){
-        //                 visibility:hidden !important;
-        //             }
-        //             :element{
-        //                 display:block;
-        //             }`)}
-        // );
         customElements.define('starcounter-include', StarcounterInclude);
     })();
 </script>

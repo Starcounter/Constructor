@@ -18,7 +18,6 @@ For more details see articles:
 
 - Fallback composition - a single `<style>:host{display: block;}</style><slot></slot>` to display all things from light DOM in case no composition was provided
 - Default composition - composition (or multiple concatenated compositions) found in the partial HTML view (`<template is="declarative-shadow-dom">` part)
-- Parent composition - composition found in the parent HTML view (content of `<starcounter-include ...><template is="declarative-shadow-dom" presentation="parent">`). It's used to enforce by parent view a given composition for any kind of elements.
 - Custom composition - stored composition provided in JSON by BlendingProvider
 - Temporary composition - explicit composition set directly in the shadow root of `starcounter-include` (for example by Chrome DevTools or `<starcounter-layout-html-editor>` in BlendingEditor)
 
@@ -60,15 +59,14 @@ To produce
  - HTML Imports features:
   - Sends request for template only once (HTML Import's caching),
   - Supports `<script>, <link>, <style>` tags to be executed once,
-  - Supports `<script>, <style>` tags per template instance,
- - Easy way to attach presentation expressed in declarative Shadow DOM,
- - Blocks rendering of Shadow DOM until `<link rel="stylesheet">`s are loaded, unless loaded asynchronously (see below).
+  - Supports `<script>, <style>` tags per template instance.
+ - Easy way to attach presentation expressed in declarative Shadow DOM
 
 
-### High-level docs
- You can read more on [Blendable Web Apps in Starcounter docs](https://docs.starcounter.io/guides/blendable-web-apps)
- - https://docs.starcounter.io/guides/blendable-web-apps/html-views
- - https://docs.starcounter.io/guides/blendable-web-apps/view-composing
+### wiki
+ - https://github.com/StarcounterPrefabs/Launcher/wiki/Partials
+ - https://github.com/StarcounterPrefabs/Launcher/wiki/Layout-setup
+ - https://github.com/StarcounterPrefabs/Launcher/wiki/include-template-in-Polyjuice
 
 ### Partial HTML views limitations
 
@@ -141,20 +139,8 @@ Property   | Options           | Default | Description
 Name                                    | Detail                 | Description
 ---                                     | ---                    | ---
 `starcounter-include-composition-saved` | *String* stored composition | Triggered once composition is saved
-`partial-changed`                       | *Object* `{value: storedComposition, path: 'partial.{compositionProvider}.Composition'}` | Polymer notification protocol compliant event to notify about `partial.{compositionProvider}.Composition` change, triggered once composition is saved.
-`view-model-changed`                       | *Object* `{value: storedComposition, path: 'viewModel.{compositionProvider}.Composition'}` | Polymer notification protocol compliant event to notify about `partial.{compositionProvider}.Composition` change, triggered once composition is saved.
-`presentation-loaded`                   | none                   | When all links from a stamped presentation finished loading (with success or failure).
-
-## Render-blocking links
-
-To mimic native behavior of markup for Declarative Shadow DOM and to avoid <abbr title="Flash Of Unstyled Content">FOUC</abbr> the element will "block rendering" until all `<link rel="stylesheet">`s are loaded or throw an error.
-
-You can opt-out by using the same technique you can use to asynchronously load the stylesheet into a static document:
-```html
-<link rel="preload" href="/path/to/styles.css" as="style" onload="this.rel='stylesheet'">
-```
-
-The blocked rendering is achieved by setting `visibility: hidden` on shadow host - `<strcounter-include>` element.
+`partial-changed`                       | *Object* `{value: storedComposition, path: 'partial.{compositionProvider}.Composition$'}` | Polymer notification protocol compliant event to notify about `partial.{compositionProvider}.Composition$` change, triggered once composition is saved.
+`view-model-changed`                       | *Object* `{value: storedComposition, path: 'viewModel.{compositionProvider}.Composition$'}` | Polymer notification protocol compliant event to notify about `partial.{compositionProvider}.Composition$` change, triggered once composition is saved.
 
 ## Test suite
 
