@@ -33,7 +33,9 @@ namespace Constructor.Database
         public int TotalAmount => Quantity * Price;
 
         public bool Equals(Module other) => Db.Equals(this, other);
+
+        public override bool Equals(object obj) => Db.Equals(this, obj);
+
+        public override int GetHashCode() => Db.GetOid(this).GetHashCode();
     }
-
-
 }

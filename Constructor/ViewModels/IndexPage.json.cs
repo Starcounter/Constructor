@@ -53,8 +53,9 @@ namespace Constructor.ViewModels
 
                 Db.Transact(() =>
                 {
-                    Data.Repository.PreDelete();
-                    Db.Delete(Data.Repository);
+                    var repository = Data.Repository;
+                    repository.PreDelete();
+                    Db.Delete(repository);
                 }, new TransactOptions(() => { }));
             }
         }

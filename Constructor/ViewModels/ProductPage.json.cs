@@ -77,7 +77,7 @@ namespace Constructor.ViewModels
 
                 Commits.Data = GetCommits(branch);
                 CloseCommitName = commit.Name;
-            });
+            }, new TransactOptions(() => { }));
         }
 
         protected void Handle(Input.CloseCommitTrigger action)

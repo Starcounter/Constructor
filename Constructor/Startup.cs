@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Palindrom.Server.AspNetCore.Html;
 using Starcounter.Nova.Extensions.DependencyInjection;
 using Starcounter.XSON.Palindrom.AspNetCore;
 
@@ -24,7 +25,7 @@ namespace Constructor
             services.Configure<KestrelServerOptions>(o => o.AllowSynchronousIO = true);
             services.AddSingleton<PropertyCrudManager>();
             services.AddMvc(o => o.EnableEndpointRouting = false);
-            services.AddXSON("Constructor", "__constructor");
+            services.AddXSON("Constructor", "/__constructor");
         }
 
         public void Configure(IApplicationBuilder app)
@@ -32,6 +33,7 @@ namespace Constructor
             app.UseDeveloperExceptionPage();
             app.UseWebSockets();
             app.UseXSON();
+            app.UsePalindromHtmlMerger();
             app.UseMvcWithDefaultRoute();
             Item.PropertyCrud = app.ApplicationServices.GetService<PropertyCrudManager>();
         }
