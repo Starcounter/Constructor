@@ -30,7 +30,7 @@
   ],
   "main": "./src/palindrom.js",
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": "^0.19.0",
     "events": "^1.1.1",
     "fast-json-patch": "^2.0.7",
     "json-patch-ot": "^1.0.1",
