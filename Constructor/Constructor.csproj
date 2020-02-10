@@ -50,6 +50,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomPartialToStandaloneHtmlProvider.cs" />
     <Compile Include="Database\Branch.cs" />
     <Compile Include="Database\Commit.cs" />
     <Compile Include="Database\Item.cs" />

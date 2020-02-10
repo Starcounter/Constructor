@@ -9,7 +9,7 @@ namespace Constructor
         static void Main()
         {
             Application.Current.Use(new HtmlFromJsonProvider());
-            Application.Current.Use(new PartialToStandaloneHtmlProvider());
+            Application.Current.Use(new CustomPartialToStandaloneHtmlProvider());
 
             Handle.GET("/constructor", () =>
             {
